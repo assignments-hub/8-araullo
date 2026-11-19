@@ -50,9 +50,7 @@
       align-items: center;
       gap: 0.4rem;
     }
-    .btn-primary { background: var(--accent); border-color: var(--accent); color: #fff; }
-    .btn-primary:hover { background: var(--accent-hover); }
-    .btn:hover:not(.btn-primary) { background: var(--surface-alt); }
+    .btn:hover { background: var(--surface-alt); }
     .controls {
       display: grid;
       grid-template-columns: 1fr 200px;
@@ -172,9 +170,8 @@
     <header>
       <div>
         <h1>Class Assignment Hub</h1>
-        <div class="subtitle" id="countText">Loading shared assignments...</div>
+        <div class="subtitle" id="countText">Loading assignments...</div>
       </div>
-      <a href="add-assignment.html" class="btn btn-primary">+ Add Assignment</a>
     </header>
 
     <div class="controls">
@@ -233,11 +230,7 @@
         `${filtered.length} of ${allItems.length} assignment${allItems.length === 1 ? '' : 's'}`;
 
       if (!filtered.length) {
-        board.innerHTML = `
-          <div class="empty">
-            <p>No assignments found yet.</p>
-            <p>Click <strong>+ Add Assignment</strong> to post the first one.</p>
-          </div>`;
+        board.innerHTML = `<div class="empty"><p>No assignments posted yet.</p></div>`;
         return;
       }
 
