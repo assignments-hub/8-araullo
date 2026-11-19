@@ -186,5 +186,45 @@
     </div>
   </div>
 
-  <script type="module">
-    
+  <script>
+    (function () {
+      const ADMIN_USER = 'admin';
+      const ADMIN_PASS = 'rainier';
+      const AUTH_STORAGE_KEY = 'class_hub_admin_unlocked';
+
+      const loginPanel = document.getElementById('loginPanel');
+      const editorPanel = document.getElementById('editorPanel');
+      const loginForm = document.getElementById('loginForm');
+      const loginMsg = document.getElementById('loginMsg');
+      const lockBtn = document.getElementById('lockBtn');
+
+      function setUnlocked(unlocked) {
+        if (unlocked) {
+          try { sessionStorage.setItem(AUTH_STORAGE_KEY, '1'); } catch (_) {}
+          loginPanel.classList.add('hidden');
+          editorPanel.classList.remove('hidden');
+        } else {
+          try { sessionStorage.removeItem(AUTH_STORAGE_KEY); } catch (_) {}
+          editorPanel.classList.add('hidden');
+          loginPanel.classList.remove('hidden');
+        }
+      }
+
+      try {
+        if (sessionStorage.getItem(AUTH_STORAGE_KEY) === '1') {
+          setUnlocked(true);
+        }
+      } catch (_) {}
+
+      loginForm.addEventListener('submit', function (e) {
+        e.preventDefault();
+        const user = document.getElementById('username').value.trim();
+        const pass = document.getElementById('password').value;
+
+        if (user === ADMIN_USER && pass === ADMIN_PASS) {
+          loginMsg.className = 'msg';
+          document.getElementById('password').value = '';
+          setUnlocked(true);
+        } else {
+          loginMsg.textContent = 'Invalid username or password
+            
