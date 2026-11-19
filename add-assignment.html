@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Post Class Assignment</title>
+  <style>
+    :root {
+      --bg: #0b0d12;
+      --surface: #141821;
+      --border: #283044;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --accent: #3b82f6;
+      --accent-hover: #2563eb;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 1.5rem 1rem 3rem;
+    }
+    .container { max-width: 640px; margin: 0 auto; }
+    .back-link {
+      display: inline-block;
+      color: #60a5fa;
+      text-decoration: none;
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.5rem;
+    }
+    h1 { margin: 0 0 0.35rem; font-size: 1.4rem; }
+    .sub { color: var(--muted); font-size: 0.9rem; margin-bottom: 1.25rem; }
+    label {
+      display: block;
+      font-size: 0.88rem;
+      font-weight: 600;
+      margin: 1rem 0 0.35rem;
+    }
+    input[type="text"], textarea {
+      width: 100%;
+      padding: 0.7rem 0.85rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.95rem;
+    }
+    textarea { min-height: 150px; resize: vertical; line-height: 1.5; }
+    .file-box {
+      border: 2px dashed var(--border);
+      border-radius: 10px;
+      padding: 1.25rem;
+      text-align: center;
+      background: var(--bg);
+      cursor: pointer;
+    }
+    .file-box:hover { border-color: var(--accent); }
+    #preview {
+      display: none;
+      max-width: 100%;
+      max-height: 250px;
+      margin: 0.85rem auto 0;
+      border-radius: 8px;
+      object-fit: contain;
+    }
+    .btn-submit {
+      width: 100%;
+      margin-top: 1.5rem;
+      padding: 0.8rem;
+      border: none;
+      border-radius: 8px;
+      background: var(--accent);
+      color: #fff;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .btn-submit:hover { background: var(--accent-hover); }
+    .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+    .msg {
+      margin-top: 1rem;
+      padding: 0.75rem;
+      border-radius: 8px;
+      display: none;
+      text-align: center;
+      font-weight: 600;
+    }
+    .msg.ok {
+      display: block;
+      background: rgba(34, 197, 94, 0.15);
+      border: 1px solid rgba(34, 197, 94, 0.4);
+      color: #86efac;
+    }
+    .msg.err {
+      display: block;
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      color: #fca5a5;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="assignments.html" class="back-link">← Back to Class Assignment Hub</a>
+
+    <div class="panel">
+      <h1>Post Assignment & Answers</h1>
+      <div class="sub">Anyone with the board link will see this submission.</div>
+
+      <form id="form">
+        <label for="subject">Subject</label>
+        <input type="text" id="subject" list="subjectList" placeholder="e.g., Algebra, Biology, Literature" required />
+        <datalist id="subjectList">
+          <option value="Algebra">
+          <option value="Biology">
+          <option value="Literature">
+          <option value="Social Studies">
+        </datalist>
+
+        <label for="title">Assignment Title / Activity #</label>
+        <input type="text" id="title" placeholder="e.g., Worksheet 2 - Quadratics" required />
+
+        <label>Assignment Picture</label>
+        <div class="file-box" onclick="document.getElementById('photoInput').click()">
+          <div id="filePrompt">Tap to choose or take a photo</div>
+          <img id="preview" alt="Preview" />
+          <input type="file" id="photoInput" accept="image/*" hidden />
+        </div>
+
+        <label for="answers">Answers & Notes</label>
+        <textarea id="answers" placeholder="Write your answers here..." required></textarea>
+
+        <button type="submit" class="btn-submit" id="submitBtn">Publish Assignment</button>
+        <div class="msg" id="msgBox"></div>
+      </form>
+    </div>
+  </div>
+
+  <script type="module">
+    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+    const SUPABASE_URL = 'https://hnymghztclawsjcmodvq.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_n0klvUjn0JdKqzLkEruh-Q_FuiFVzSe';
+    const BUCKET = 'assignment-photos';
+
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    let selectedFile = null;
+
+    const photoInput = document.getElementById('photoInput');
+    const preview = document.getElementById('preview');
+    const filePrompt = document.getElementById('filePrompt');
+    const msgBox = document.getElementById('msgBox');
+    const submitBtn = document.getElementById('submitBtn');
+
+    function showMessage(text, isError = false) {
+      msgBox.textContent = text;
+      msgBox.className = 'msg ' + (isError ? 'err' : 'ok');
+    }
+
+    photoInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      selectedFile = file;
+      preview.src = URL.createObjectURL(file);
+      preview.style.display = 'block';
+      filePrompt.textContent = 'Tap to change image';
+    });
+
+    document.getElementById('form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Uploading...';
+      msgBox.className = 'msg';
+
+      try {
+        let photoUrl = '';
+
+        if (selectedFile) {
+          const ext = selectedFile.name.split('.').pop() || 'jpg';
+          const filePath = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+
+          const { error: uploadError } = await supabase.storage
+            .from(BUCKET)
+            .upload(filePath, selectedFile, { cacheControl: '3600', upsert: false });
+
+          if (uploadError) throw uploadError;
+
+          const { data: urlData } = supabase.storage
+            .from(BUCKET)
+            .getPublicUrl(filePath);
+
+          photoUrl = urlData.publicUrl;
+        }
+
+        const payload = {
+          subject: document.getElementById('subject').value.trim(),
+          title: document.getElementById('title').value.trim(),
+          answers: document.getElementById('answers').value.trim(),
+          photo_url: photoUrl,
+          created_date: new Date().toLocaleDateString(undefined, {
+            month: 'short', day: 'numeric', year: 'numeric'
+          })
+        };
+
+        const { error: insertError } = await supabase
+          .from('assignments')
+          .insert([payload]);
+
+        if (insertError) throw insertError;
+
+        showMessage('Published! Redirecting to board...');
+        setTimeout(() => { window.location.href = 'assignments.html'; }, 800);
+      } catch (err) {
+        showMessage('Error: ' + (err.message || 'Could not publish assignment.'), true);
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Publish Assignment';
+      }
+    });
+  </script>
+</body>
+</html>
