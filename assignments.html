@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Class Assignment Hub</title>
+  <style>
+    :root {
+      --bg: #0b0d12;
+      --surface: #141821;
+      --surface-alt: #1c2230;
+      --border: #283044;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --accent: #3b82f6;
+      --accent-hover: #2563eb;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 1.5rem 1rem 4rem;
+    }
+    .container { max-width: 960px; margin: 0 auto; }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border);
+    }
+    h1 { margin: 0; font-size: 1.5rem; }
+    .subtitle { color: var(--muted); font-size: 0.9rem; margin-top: 0.25rem; }
+    .btn {
+      padding: 0.65rem 1.05rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+    .btn-primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+    .btn-primary:hover { background: var(--accent-hover); }
+    .btn:hover:not(.btn-primary) { background: var(--surface-alt); }
+    .controls {
+      display: grid;
+      grid-template-columns: 1fr 200px;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+    @media (max-width: 600px) { .controls { grid-template-columns: 1fr; } }
+    input[type="search"], select {
+      width: 100%;
+      padding: 0.7rem 0.9rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      font-size: 0.95rem;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.25rem;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .card-img-wrap {
+      background: #07090d;
+      height: 220px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: zoom-in;
+      overflow: hidden;
+      border-bottom: 1px solid var(--border);
+    }
+    .card-img-wrap img { width: 100%; height: 100%; object-fit: cover; }
+    .card-body { padding: 1rem; flex: 1; display: flex; flex-direction: column; }
+    .card-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+    .badge {
+      background: rgba(59, 130, 246, 0.15);
+      color: #60a5fa;
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    .date { color: var(--muted); font-size: 0.78rem; }
+    .card-title { margin: 0 0 0.75rem; font-size: 1.1rem; }
+    .answer-content {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.75rem;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-break: break-word;
+      flex: 1;
+      max-height: 240px;
+      overflow-y: auto;
+    }
+    .card-footer {
+      margin-top: 0.85rem;
+      padding-top: 0.75rem;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: flex-end;
+    }
+    .btn-sm { padding: 0.35rem 0.65rem; font-size: 0.8rem; }
+    .empty {
+      text-align: center;
+      padding: 3.5rem 1rem;
+      background: var(--surface);
+      border: 1px dashed var(--border);
+      border-radius: 12px;
+      color: var(--muted);
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.88);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .modal.open { display: flex; }
+    .modal img { max-width: 95vw; max-height: 90vh; border-radius: 8px; }
+    .modal-close {
+      position: fixed;
+      top: 1rem;
+      right: 1.25rem;
+      background: var(--surface);
+      color: #fff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.5rem 0.85rem;
+      font-weight: 700;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div>
+        <h1>Class Assignment Hub</h1>
+        <div class="subtitle" id="countText">Loading shared assignments...</div>
+      </div>
+      <a href="add-assignment.html" class="btn btn-primary">+ Add Assignment</a>
+    </header>
+
+    <div class="controls">
+      <input type="search" id="searchInput" placeholder="Search title or answers..." />
+      <select id="subjectFilter">
+        <option value="ALL">All Subjects</option>
+      </select>
+    </div>
+
+    <div id="board"></div>
+  </div>
+
+  <div class="modal" id="imgModal">
+    <button class="modal-close" id="closeModal">Close ✕</button>
+    <img id="modalImg" src="" alt="Assignment photo" />
+  </div>
+
+  <script type="module">
+    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+    const SUPABASE_URL = 'https://hnymghztclawsjcmodvq.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_n0klvUjn0JdKqzLkEruh-Q_FuiFVzSe';
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    let allItems = [];
+
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.textContent = str || '';
+      return div.innerHTML;
+    }
+
+    function updateSubjectDropdown(items) {
+      const select = document.getElementById('subjectFilter');
+      const current = select.value;
+      const subjects = [...new Set(items.map(i => i.subject).filter(Boolean))].sort();
+      select.innerHTML = '<option value="ALL">All Subjects</option>' +
+        subjects.map(s => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join('');
+      if (subjects.includes(current)) select.value = current;
+    }
+
+    function renderBoard() {
+      const query = document.getElementById('searchInput').value.trim().toLowerCase();
+      const subject = document.getElementById('subjectFilter').value;
+      const board = document.getElementById('board');
+
+      const filtered = allItems.filter(item => {
+        const matchSubj = subject === 'ALL' || item.subject === subject;
+        const matchText = !query ||
+          (item.title || '').toLowerCase().includes(query) ||
+          (item.answers || '').toLowerCase().includes(query);
+        return matchSubj && matchText;
+      });
+
+      document.getElementById('countText').textContent =
+        `${filtered.length} of ${allItems.length} assignment${allItems.length === 1 ? '' : 's'}`;
+
+      if (!filtered.length) {
+        board.innerHTML = `
+          <div class="empty">
+            <p>No assignments found yet.</p>
+            <p>Click <strong>+ Add Assignment</strong> to post the first one.</p>
+          </div>`;
+        return;
+      }
+
+      board.innerHTML = `<div class="grid">${filtered.map(item => `
+        <article class="card">
+          ${item.photo_url ? `
+            <div class="card-img-wrap" data-zoom="${escapeHtml(item.photo_url)}">
+              <img src="${escapeHtml(item.photo_url)}" alt="${escapeHtml(item.title)}" />
+            </div>` : ''}
+          <div class="card-body">
+            <div class="card-meta">
+              <span class="badge">${escapeHtml(item.subject)}</span>
+              <span class="date">${escapeHtml(item.created_date || '')}</span>
+            </div>
+            <h2 class="card-title">${escapeHtml(item.title)}</h2>
+            <div class="answer-content">${escapeHtml(item.answers)}</div>
+            <div class="card-footer">
+              <button class="btn btn-sm" data-copy="${item.id}">Copy Answers</button>
+            </div>
+          </div>
+        </article>
+      `).join('')}</div>`;
+
+      board.querySelectorAll('[data-zoom]').forEach(el => {
+        el.addEventListener('click', () => {
+          document.getElementById('modalImg').src = el.getAttribute('data-zoom');
+          document.getElementById('imgModal').classList.add('open');
+        });
+      });
+
+      board.querySelectorAll('[data-copy]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const found = allItems.find(x => String(x.id) === btn.getAttribute('data-copy'));
+          if (found) {
+            navigator.clipboard.writeText(found.answers).then(() => alert('Answers copied!'));
+          }
+        });
+      });
+    }
+
+    async function loadAssignments() {
+      const { data, error } = await supabase
+        .from('assignments')
+        .select('*')
+        .order('id', { ascending: false });
+
+      if (error) {
+        document.getElementById('board').innerHTML =
+          `<div class="empty">Failed to load assignments: ${escapeHtml(error.message)}</div>`;
+        return;
+      }
+
+      allItems = data || [];
+      updateSubjectDropdown(allItems);
+      renderBoard();
+    }
+
+    document.getElementById('closeModal').onclick = () => {
+      document.getElementById('imgModal').classList.remove('open');
+    };
+    document.getElementById('imgModal').onclick = (e) => {
+      if (e.target.id === 'imgModal') e.currentTarget.classList.remove('open');
+    };
+    document.getElementById('searchInput').addEventListener('input', renderBoard);
+    document.getElementById('subjectFilter').addEventListener('change', renderBoard);
+
+    loadAssignments();
+  </script>
+</body>
+</html>
