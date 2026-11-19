@@ -106,7 +106,6 @@
       border: 1px solid rgba(239, 68, 68, 0.4);
       color: #fca5a5;
     }
-    .hidden { display: none; }
     .top-bar {
       display: flex;
       justify-content: space-between;
@@ -136,20 +135,20 @@
       <h1>Admin Access Required</h1>
       <div class="sub">Enter your username and password to post assignments.</div>
 
-      <form id="loginForm">
+      <form id="loginForm" onsubmit="return false;">
         <label for="username">Username</label>
-        <input type="text" id="username" autocomplete="username" required />
+        <input type="text" id="username" autocomplete="username" />
 
         <label for="password">Password</label>
-        <input type="password" id="password" autocomplete="current-password" required />
+        <input type="password" id="password" autocomplete="current-password" />
 
-        <button type="submit" class="btn-submit">Unlock Posting Form</button>
+        <button type="button" class="btn-submit" id="unlockBtn">Unlock Posting Form</button>
         <div class="msg" id="loginMsg"></div>
       </form>
     </div>
 
-    <!-- Assignment Form (Hidden until unlocked) -->
-    <div class="panel hidden" id="editorPanel">
+    <!-- Assignment Form -->
+    <div class="panel" id="editorPanel" style="display: none;">
       <div class="top-bar">
         <h1>Post Assignment & Answers</h1>
         <button type="button" class="btn-lock" id="lockBtn">Lock</button>
@@ -171,10 +170,10 @@
         <input type="text" id="title" placeholder="e.g., Worksheet 2 - Quadratics" required />
 
         <label>Assignment Picture</label>
-        <div class="file-box" onclick="document.getElementById('photoInput').click()">
+        <div class="file-box" id="fileBox">
           <div id="filePrompt">Tap to choose or take a photo</div>
           <img id="preview" alt="Preview" />
-          <input type="file" id="photoInput" accept="image/*" hidden />
+          <input type="file" id="photoInput" accept="image/*" style="display: none;" />
         </div>
 
         <label for="answers">Answers & Notes</label>
@@ -194,19 +193,21 @@
 
       const loginPanel = document.getElementById('loginPanel');
       const editorPanel = document.getElementById('editorPanel');
-      const loginForm = document.getElementById('loginForm');
+      const unlockBtn = document.getElementById('unlockBtn');
       const loginMsg = document.getElementById('loginMsg');
       const lockBtn = document.getElementById('lockBtn');
+      const userInput = document.getElementById('username');
+      const passInput = document.getElementById('password');
 
       function setUnlocked(unlocked) {
         if (unlocked) {
           try { sessionStorage.setItem(AUTH_STORAGE_KEY, '1'); } catch (_) {}
-          loginPanel.classList.add('hidden');
-          editorPanel.classList.remove('hidden');
+          loginPanel.style.display = 'none';
+          editorPanel.style.display = 'block';
         } else {
           try { sessionStorage.removeItem(AUTH_STORAGE_KEY); } catch (_) {}
-          editorPanel.classList.add('hidden');
-          loginPanel.classList.remove('hidden');
+          editorPanel.style.display = 'none';
+          loginPanel.style.display = 'block';
         }
       }
 
@@ -216,15 +217,108 @@
         }
       } catch (_) {}
 
-      loginForm.addEventListener('submit', function (e) {
-        e.preventDefault();
-        const user = document.getElementById('username').value.trim();
-        const pass = document.getElementById('password').value;
+      function attemptLogin() {
+        const user = userInput.value.trim().toLowerCase();
+        const pass = passInput.value;
 
         if (user === ADMIN_USER && pass === ADMIN_PASS) {
           loginMsg.className = 'msg';
-          document.getElementById('password').value = '';
+          loginMsg.textContent = '';
+          passInput.value = '';
           setUnlocked(true);
         } else {
-          loginMsg.textContent = 'Invalid username or password
-            
+          loginMsg.textContent = 'Invalid username or password.';
+          loginMsg.className = 'msg err';
+        }
+      }
+
+      unlockBtn.addEventListener('click', attemptLogin);
+      passInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          attemptLogin();
+        }
+      });
+      userInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          passInput.focus();
+        }
+      });
+
+      lockBtn.addEventListener('click', function () {
+        setUnlocked(false);
+      });
+    })();
+  </script>
+
+  <script type="module">
+    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+    const SUPABASE_URL = 'https://hnymghztclawsjcmodvq.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_n0klvUjn0JdKqzLkEruh-Q_FuiFVzSe';
+    const BUCKET = 'assignment-photos';
+
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    let selectedFile = null;
+
+    const fileBox = document.getElementById('fileBox');
+    const photoInput = document.getElementById('photoInput');
+    const preview = document.getElementById('preview');
+    const filePrompt = document.getElementById('filePrompt');
+    const msgBox = document.getElementById('msgBox');
+    const submitBtn = document.getElementById('submitBtn');
+
+    function showMessage(text, isError = false) {
+      msgBox.textContent = text;
+      msgBox.className = 'msg ' + (isError ? 'err' : 'ok');
+    }
+
+    fileBox.addEventListener('click', () => photoInput.click());
+
+    photoInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      selectedFile = file;
+      preview.src = URL.createObjectURL(file);
+      preview.style.display = 'block';
+      filePrompt.textContent = 'Tap to change image';
+    });
+
+    document.getElementById('form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Uploading...';
+      msgBox.className = 'msg';
+
+      try {
+        let photoUrl = '';
+
+        if (selectedFile) {
+          const ext = selectedFile.name.split('.').pop() || 'jpg';
+          const filePath = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+
+          const { error: uploadError } = await supabase.storage
+            .from(BUCKET)
+            .upload(filePath, selectedFile, { cacheControl: '3600', upsert: false });
+
+          if (uploadError) throw uploadError;
+
+          const { data: urlData } = supabase.storage
+            .from(BUCKET)
+            .getPublicUrl(filePath);
+
+          photoUrl = urlData.publicUrl;
+        }
+
+        const payload = {
+          subject: document.getElementById('subject').value.trim(),
+          title: document.getElementById('title').value.trim(),
+          answers: document.getElementById('answers').value.trim(),
+          photo_url: photoUrl,
+          created_date: new Date().toLocaleDateString(undefined, {
+            month: 'short', day: 'numeric', year: 'numeric'
+          })
+        };
+
+    
