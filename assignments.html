@@ -35,7 +35,6 @@
       position: relative;
     }
 
-    /* Animated Cyber Grid + Ambient Orbs */
     .bg-grid {
       position: fixed;
       inset: 0;
@@ -75,7 +74,6 @@
       margin: 0 auto;
     }
 
-    /* HUD Header */
     header {
       position: relative;
       background: var(--surface);
@@ -196,7 +194,6 @@
       box-shadow: 0 0 16px rgba(56, 189, 248, 0.5);
     }
 
-    /* Live Announcement Banner */
     .announcement-banner {
       display: none;
       background: linear-gradient(135deg, rgba(251, 191, 36, 0.12), rgba(168, 85, 247, 0.12));
@@ -207,7 +204,6 @@
       padding: 0.95rem 1.25rem;
       margin-bottom: 1.35rem;
       box-shadow: 0 0 24px rgba(251, 191, 36, 0.12);
-      animation: fadeDown 0.55s ease-out both;
     }
 
     .announcement-banner.visible {
@@ -244,7 +240,6 @@
       word-break: break-word;
     }
 
-    /* Search & Filter Bar */
     .controls {
       display: grid;
       grid-template-columns: 1fr 220px;
@@ -269,7 +264,7 @@
       font-family: inherit;
       font-size: 0.95rem;
       outline: none;
-      transition: border-color 0.25s, box-shadow 0.25s, transform 0.2s;
+      transition: border-color 0.25s, box-shadow 0.25s;
     }
 
     input[type="search"]::placeholder { color: #64748b; }
@@ -279,7 +274,6 @@
       box-shadow: 0 0 18px rgba(56, 189, 248, 0.22);
     }
 
-    /* Cards Grid */
     .grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
@@ -299,13 +293,12 @@
       transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
                   border-color 0.28s ease,
                   box-shadow 0.28s ease;
-      opacity: 0;
-      animation: cardIn 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+      animation: cardIn 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
     }
 
     @keyframes cardIn {
-      from { opacity: 0; transform: translateY(18px) scale(0.98); }
-      to { opacity: 1; transform: translateY(0) scale(1); }
+      from { opacity: 0; transform: translateY(14px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     .card:hover {
@@ -455,7 +448,6 @@
       color: var(--muted);
     }
 
-    /* Fullscreen Lightbox Modal */
     .modal {
       display: none;
       position: fixed;
@@ -466,12 +458,6 @@
       align-items: center;
       justify-content: center;
       padding: 1rem;
-      animation: fadeIn 0.2s ease;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
     }
 
     .modal.open { display: flex; }
@@ -615,20 +601,24 @@
     }
 
     async function loadAnnouncement() {
-      const { data } = await supabase
-        .from('announcements')
-        .select('message')
-        .eq('id', 1)
-        .maybeSingle();
+      try {
+        const { data, error } = await supabase
+          .from('announcements')
+          .select('message')
+          .eq('id', 1)
+          .maybeSingle();
 
-      const msg = (data?.message || '').trim();
-      const banner = document.getElementById('announcementBanner');
-      if (msg) {
-        document.getElementById('announcementText').textContent = msg;
-        banner.classList.add('visible');
-      } else {
-        banner.classList.remove('visible');
-      }
+        if (error) return;
+
+        const msg = (data?.message || '').trim();
+        const banner = document.getElementById('announcementBanner');
+        if (msg) {
+          document.getElementById('announcementText').textContent = msg;
+          banner.classList.add('visible');
+        } else {
+          banner.classList.remove('visible');
+        }
+      } catch (_) {}
     }
 
     function updateSubjectDropdown(items) {
@@ -662,7 +652,7 @@
       }
 
       board.innerHTML = `<div class="grid">${filtered.map((item, idx) => `
-        <article class="card" style="animation-delay: ${Math.min(idx * 65, 500)}ms">
+        <article class="card" style="animation-delay: ${Math.min(idx * 55, 450)}ms">
           ${item.photo_url ? `
             <div class="card-img-wrap" data-zoom="${escapeHtml(item.photo_url)}">
               <img src="${escapeHtml(item.photo_url)}" alt="${escapeHtml(item.title)}" loading="lazy" />
@@ -695,4 +685,17 @@
           if (found) {
             navigator.clipboard.writeText(found.answers).then(() => {
               btn.textContent = 'Copied ✓';
-              btn.classList.add('copied')
+              btn.classList.add('copied');
+              setTimeout(() => {
+                btn.textContent = 'Copy Answers';
+                btn.classList.remove('copied');
+              }, 1600);
+            });
+          }
+        });
+      });
+    }
+
+    async function loadAssignments() {
+      const countEl = document.getElementById('countText');
+     
