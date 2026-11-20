@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <style>
     :root {
       --bg: #04070d;
@@ -585,117 +586,107 @@
     })();
   </script>
 
-  <script type="module">
-    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+  <script>
+    (async function () {
+      const SUPABASE_URL = 'https://hnymghztclawsjcmodvq.supabase.co';
+      const SUPABASE_ANON_KEY = 'sb_publishable_n0klvUjn0JdKqzLkEruh-Q_FuiFVzSe';
 
-    const SUPABASE_URL = 'https://hnymghztclawsjcmodvq.supabase.co';
-    const SUPABASE_ANON_KEY = 'sb_publishable_n0klvUjn0JdKqzLkEruh-Q_FuiFVzSe';
-    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+      const countEl = document.getElementById('countText');
+      const boardEl = document.getElementById('board');
+      let allItems = [];
 
-    let allItems = [];
+      function escapeHtml(str) {
+        const div = document.createElement('div');
+        div.textContent = str || '';
+        return div.innerHTML;
+      }
 
-    function escapeHtml(str) {
-      const div = document.createElement('div');
-      div.textContent = str || '';
-      return div.innerHTML;
-    }
-
-    async function loadAnnouncement() {
-      try {
-        const { data, error } = await supabase
-          .from('announcements')
-          .select('message')
-          .eq('id', 1)
-          .maybeSingle();
-
-        if (error) return;
-
-        const msg = (data?.message || '').trim();
-        const banner = document.getElementById('announcementBanner');
-        if (msg) {
-          document.getElementById('announcementText').textContent = msg;
-          banner.classList.add('visible');
-        } else {
-          banner.classList.remove('visible');
-        }
-      } catch (_) {}
-    }
-
-    function updateSubjectDropdown(items) {
-      const select = document.getElementById('subjectFilter');
-      const current = select.value;
-      const subjects = [...new Set(items.map(i => i.subject).filter(Boolean))].sort();
-      select.innerHTML = '<option value="ALL">All Subjects</option>' +
-        subjects.map(s => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join('');
-      if (subjects.includes(current)) select.value = current;
-    }
-
-    function renderBoard() {
-      const query = document.getElementById('searchInput').value.trim().toLowerCase();
-      const subject = document.getElementById('subjectFilter').value;
-      const board = document.getElementById('board');
-
-      const filtered = allItems.filter(item => {
-        const matchSubj = subject === 'ALL' || item.subject === subject;
-        const matchText = !query ||
-          (item.title || '').toLowerCase().includes(query) ||
-          (item.answers || '').toLowerCase().includes(query);
-        return matchSubj && matchText;
-      });
-
-      document.getElementById('countText').textContent =
-        `Showing ${filtered.length} of ${allItems.length} assignment${allItems.length === 1 ? '' : 's'}`;
-
-      if (!filtered.length) {
-        board.innerHTML = `<div class="empty"><p>No matching assignments found in database.</p></div>`;
+      if (!window.supabase || typeof window.supabase.createClient !== 'function') {
+        countEl.textContent = 'Client load error';
+        boardEl.innerHTML = `<div class="empty"><p>Failed to load Supabase client library. Check internet/adblock and refresh.</p></div>`;
         return;
       }
 
-      board.innerHTML = `<div class="grid">${filtered.map((item, idx) => `
-        <article class="card" style="animation-delay: ${Math.min(idx * 55, 450)}ms">
-          ${item.photo_url ? `
-            <div class="card-img-wrap" data-zoom="${escapeHtml(item.photo_url)}">
-              <img src="${escapeHtml(item.photo_url)}" alt="${escapeHtml(item.title)}" loading="lazy" />
-              <span class="zoom-hint">TAP TO ZOOM</span>
-            </div>` : ''}
-          <div class="card-body">
-            <div class="card-meta">
-              <span class="badge">${escapeHtml(item.subject)}</span>
-              <span class="date">${escapeHtml(item.created_date || '')}</span>
-            </div>
-            <h2 class="card-title">${escapeHtml(item.title)}</h2>
-            <div class="answer-content">${escapeHtml(item.answers)}</div>
-            <div class="card-footer">
-              <button class="btn-copy" data-copy="${item.id}">Copy Answers</button>
-            </div>
-          </div>
-        </article>
-      `).join('')}</div>`;
+      const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-      board.querySelectorAll('[data-zoom]').forEach(el => {
-        el.addEventListener('click', () => {
-          document.getElementById('modalImg').src = el.getAttribute('data-zoom');
-          document.getElementById('imgModal').classList.add('open');
-        });
-      });
+      async function loadAnnouncement() {
+        try {
+          const { data, error } = await db
+            .from('announcements')
+            .select('message')
+            .eq('id', 1)
+            .maybeSingle();
 
-      board.querySelectorAll('[data-copy]').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const found = allItems.find(x => String(x.id) === btn.getAttribute('data-copy'));
-          if (found) {
-            navigator.clipboard.writeText(found.answers).then(() => {
-              btn.textContent = 'Copied ✓';
-              btn.classList.add('copied');
-              setTimeout(() => {
-                btn.textContent = 'Copy Answers';
-                btn.classList.remove('copied');
-              }, 1600);
-            });
+          if (error) return;
+
+          const msg = (data?.message || '').trim();
+          const banner = document.getElementById('announcementBanner');
+          if (msg) {
+            document.getElementById('announcementText').textContent = msg;
+            banner.classList.add('visible');
+          } else {
+            banner.classList.remove('visible');
           }
-        });
-      });
-    }
+        } catch (_) {}
+      }
 
-    async function loadAssignments() {
-      const countEl = document.getElementById('countText');
-     
+      function updateSubjectDropdown(items) {
+        const select = document.getElementById('subjectFilter');
+        const current = select.value;
+        const subjects = [...new Set(items.map(i => i.subject).filter(Boolean))].sort();
+        select.innerHTML = '<option value="ALL">All Subjects</option>' +
+          subjects.map(s => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join('');
+        if (subjects.includes(current)) select.value = current;
+      }
+
+      function renderBoard() {
+        const query = document.getElementById('searchInput').value.trim().toLowerCase();
+        const subject = document.getElementById('subjectFilter').value;
+
+        const filtered = allItems.filter(item => {
+          const matchSubj = subject === 'ALL' || item.subject === subject;
+          const matchText = !query ||
+            (item.title || '').toLowerCase().includes(query) ||
+            (item.answers || '').toLowerCase().includes(query);
+          return matchSubj && matchText;
+        });
+
+        countEl.textContent =
+          `Showing ${filtered.length} of ${allItems.length} assignment${allItems.length === 1 ? '' : 's'}`;
+
+        if (!filtered.length) {
+          boardEl.innerHTML = `<div class="empty"><p>No matching assignments found in database.</p></div>`;
+          return;
+        }
+
+        boardEl.innerHTML = `<div class="grid">${filtered.map((item, idx) => `
+          <article class="card" style="animation-delay: ${Math.min(idx * 55, 450)}ms">
+            ${item.photo_url ? `
+              <div class="card-img-wrap" data-zoom="${escapeHtml(item.photo_url)}">
+                <img src="${escapeHtml(item.photo_url)}" alt="${escapeHtml(item.title)}" loading="lazy" />
+                <span class="zoom-hint">TAP TO ZOOM</span>
+              </div>` : ''}
+            <div class="card-body">
+              <div class="card-meta">
+                <span class="badge">${escapeHtml(item.subject)}</span>
+                <span class="date">${escapeHtml(item.created_date || '')}</span>
+              </div>
+              <h2 class="card-title">${escapeHtml(item.title)}</h2>
+              <div class="answer-content">${escapeHtml(item.answers)}</div>
+              <div class="card-footer">
+                <button class="btn-copy" data-copy="${item.id}">Copy Answers</button>
+              </div>
+            </div>
+          </article>
+        `).join('')}</div>`;
+
+        boardEl.querySelectorAll('[data-zoom]').forEach(el => {
+          el.addEventListener('click', () => {
+            document.getElementById('modalImg').src = el.getAttribute('data-zoom');
+            document.getElementById('imgModal').classList.add('open');
+          });
+        });
+
+        boardEl.querySelectorAll('[data-copy]').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const found = allItems.find(x => S
