@@ -159,13 +159,12 @@
       gap: 0.55rem;
     }
 
-    .boys-logo-img {
-      height: 3.1rem;
+    .boys-logo-canvas {
+      height: 2.35rem;
       width: auto;
-      object-fit: contain;
-      mix-blend-mode: screen;
-      filter: drop-shadow(0 0 10px rgba(239, 68, 68, 0.35));
-      transform: translateY(2px);
+      vertical-align: middle;
+      filter: drop-shadow(0 0 10px rgba(239, 68, 68, 0.45));
+      transform: translateY(1px);
     }
 
     .subtitle {
@@ -444,7 +443,7 @@
         <div class="eyebrow"><span class="live-dot"></span> 8-ARAULLO // DATABASE ONLINE</div>
         <h1>
           CLASS ASSIGNMENT FOR THE
-          <img src="boys-logo.jpg" alt="THE BOYS" class="boys-logo-img" />
+          <canvas id="boysLogo" class="boys-logo-canvas" aria-label="THE BOYS"></canvas>
         </h1>
         <div class="subtitle" id="countText">Syncing records...</div>
       </div>
@@ -464,6 +463,64 @@
     <button class="modal-close" id="closeModal">CLOSE ✕</button>
     <img id="modalImg" src="" alt="Assignment photo" />
   </div>
+
+  <script>
+    (function () {
+      const img = new Image();
+      img.src = 'boys-logo.jpg';
+      img.onload = function () {
+        const temp = document.createElement('canvas');
+        temp.width = img.naturalWidth;
+        temp.height = img.naturalHeight;
+        const tctx = temp.getContext('2d');
+        tctx.drawImage(img, 0, 0);
+
+        const imgData = tctx.getImageData(0, 0, temp.width, temp.height);
+        const d = imgData.data;
+        let minX = temp.width, minY = temp.height, maxX = 0, maxY = 0;
+
+        for (let y = 0; y < temp.height; y++) {
+          for (let x = 0; x < temp.width; x++) {
+            const i = (y * temp.width + x) * 4;
+            const r = d[i], g = d[i + 1], b = d[i + 2];
+            const whiteness = Math.min(r, g, b);
+            if (whiteness > 210) {
+              d[i + 3] = 0;
+            } else if (whiteness > 140) {
+              d[i + 3] = Math.round(((210 - whiteness) / 70) * 255);
+            }
+            if (d[i + 3] > 10) {
+              if (x < minX) minX = x;
+              if (x > maxX) maxX = x;
+              if (y < minY) minY = y;
+              if (y > maxY) maxY = y;
+            }
+          }
+        }
+        tctx.putImageData(imgData, 0, 0);
+
+        const out = document.getElementById('boysLogo');
+        if (maxX >= minX && maxY >= minY) {
+          const pad = 4;
+          const cw = maxX - minX + 1 + pad * 2;
+          const ch = maxY - minY + 1 + pad * 2;
+          out.width = cw;
+          out.height = ch;
+          out.getContext('2d').drawImage(
+            temp,
+            minX,
+            minY,
+            maxX - minX + 1,
+            maxY - minY + 1,
+            pad,
+            pad,
+            maxX - minX + 1,
+            maxY - minY + 1
+          );
+        }
+      };
+    })();
+  </script>
 
   <script type="module">
     import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
