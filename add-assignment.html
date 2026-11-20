@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <style>
     :root {
       --bg: #04070d;
@@ -22,12 +23,10 @@
       --text: #f1f5f9;
       --muted: #94a3b8;
     }
-
     * { box-sizing: border-box; }
-
     body {
       margin: 0;
-      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
       background-color: var(--bg);
       color: var(--text);
       min-height: 100vh;
@@ -35,387 +34,134 @@
       overflow-x: hidden;
       position: relative;
     }
-
-    /* Animated Cyber Grid + Ambient Orbs */
     .bg-grid {
-      position: fixed;
-      inset: 0;
-      z-index: -2;
+      position: fixed; inset: 0; z-index: -2;
       background-image:
         linear-gradient(to right, rgba(56, 189, 248, 0.06) 1px, transparent 1px),
         linear-gradient(to bottom, rgba(56, 189, 248, 0.06) 1px, transparent 1px);
       background-size: 42px 42px;
-      mask-image: radial-gradient(ellipse at 50% 20%, #000 45%, transparent 90%);
-      -webkit-mask-image: radial-gradient(ellipse at 50% 20%, #000 45%, transparent 90%);
       animation: gridDrift 24s linear infinite;
     }
-
     .bg-glow {
-      position: fixed;
-      inset: 0;
-      z-index: -1;
-      pointer-events: none;
+      position: fixed; inset: 0; z-index: -1; pointer-events: none;
       background:
         radial-gradient(circle at 15% 15%, rgba(56, 189, 248, 0.16), transparent 40%),
         radial-gradient(circle at 85% 25%, rgba(168, 85, 247, 0.14), transparent 42%);
-      animation: pulseGlow 8s ease-in-out infinite alternate;
     }
-
-    @keyframes gridDrift {
-      0% { background-position: 0 0; }
-      100% { background-position: 42px 42px; }
-    }
-
-    @keyframes pulseGlow {
-      0% { opacity: 0.75; transform: scale(1); }
-      100% { opacity: 1; transform: scale(1.04); }
-    }
-
-    .container {
-      max-width: 680px;
-      margin: 0 auto;
-    }
-
-    /* HUD Header */
+    @keyframes gridDrift { to { background-position: 42px 42px; } }
+    .container { max-width: 680px; margin: 0 auto; }
     header {
-      position: relative;
-      background: var(--surface);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 1.35rem 1.5rem;
-      margin-bottom: 1.5rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 1rem;
-      box-shadow: 0 0 30px rgba(56, 189, 248, 0.08);
-      overflow: hidden;
-      animation: fadeDown 0.5s ease-out both;
+      background: var(--surface); backdrop-filter: blur(14px);
+      border: 1px solid var(--border); border-radius: 16px;
+      padding: 1.35rem 1.5rem; margin-bottom: 1.5rem;
+      display: flex; justify-content: space-between; align-items: center;
+      flex-wrap: wrap; gap: 1rem;
     }
-
-    header::after {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 60%;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, var(--cyan), var(--violet), transparent);
-      animation: scanLine 4.5s ease-in-out infinite;
-    }
-
-    @keyframes scanLine {
-      0% { left: -60%; }
-      100% { left: 120%; }
-    }
-
-    @keyframes fadeDown {
-      from { opacity: 0; transform: translateY(-14px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .title-wrap {
-      display: flex;
-      flex-direction: column;
-      gap: 0.35rem;
-    }
-
     .eyebrow {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 0.7rem;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      color: var(--cyan);
-      display: flex;
-      align-items: center;
-      gap: 0.45rem;
+      font-family: 'Orbitron', sans-serif; font-size: 0.7rem;
+      letter-spacing: 0.16em; color: var(--cyan);
+      display: flex; align-items: center; gap: 0.45rem;
     }
-
     .live-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--emerald);
-      box-shadow: 0 0 10px var(--emerald);
-      animation: blinkDot 1.8s infinite;
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--emerald); box-shadow: 0 0 10px var(--emerald);
     }
-
     h1 {
-      margin: 0;
-      font-family: 'Orbitron', sans-serif;
-      font-size: clamp(1.05rem, 2.6vw, 1.45rem);
-      font-weight: 800;
-      letter-spacing: 0.04em;
-      color: #f8fafc;
-      display: flex;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 0.55rem;
+      margin: 0.25rem 0 0; font-family: 'Orbitron', sans-serif;
+      font-size: clamp(1.05rem, 2.6vw, 1.45rem); font-weight: 800;
+      display: flex; align-items: center; gap: 0.55rem;
     }
-
-    .boys-logo-canvas {
-      height: 2.2rem;
-      width: auto;
-      vertical-align: middle;
-      filter: drop-shadow(0 0 10px rgba(239, 68, 68, 0.45));
-      transform: translateY(1px);
-    }
-
+    .boys-logo-canvas { height: 2.2rem; width: auto; }
     .nav-link {
-      padding: 0.5rem 0.9rem;
-      border-radius: 10px;
-      border: 1px solid var(--border-bright);
-      background: rgba(56, 189, 248, 0.1);
-      color: #bae6fd;
-      text-decoration: none;
-      font-size: 0.82rem;
-      font-weight: 700;
-      letter-spacing: 0.03em;
-      transition: all 0.2s ease;
+      padding: 0.5rem 0.9rem; border-radius: 10px;
+      border: 1px solid var(--border-bright); background: rgba(56, 189, 248, 0.1);
+      color: #bae6fd; text-decoration: none; font-size: 0.82rem; font-weight: 700;
     }
-
-    .nav-link:hover {
-      background: var(--cyan);
-      color: #030712;
-      box-shadow: 0 0 16px rgba(56, 189, 248, 0.45);
+    .nav-link:hover { background: var(--cyan); color: #030712; }
+        .panel {
+      background: var(--surface); backdrop-filter: blur(14px);
+      border: 1px solid var(--border); border-radius: 16px;
+      padding: 1.5rem; margin-bottom: 1.35rem;
     }
-
-    /* HUD Panel */
-    .panel {
-      background: var(--surface);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 1.5rem;
-      margin-bottom: 1.35rem;
-      box-shadow: 0 12px 32px rgba(2, 6, 23, 0.65);
-      animation: fadeDown 0.6s ease-out both;
-    }
-
-    .panel.amber-panel {
-      border-color: rgba(251, 191, 36, 0.35);
-    }
-
+    .panel.amber-panel { border-color: rgba(251, 191, 36, 0.35); }
     .panel-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 0.75rem;
-      margin-bottom: 1.25rem;
-      padding-bottom: 0.85rem;
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 1.25rem; padding-bottom: 0.85rem;
       border-bottom: 1px solid rgba(56, 189, 248, 0.15);
     }
-
     .panel-title {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 0.9rem;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      color: var(--cyan);
-      margin: 0;
+      font-family: 'Orbitron', sans-serif; font-size: 0.9rem;
+      font-weight: 700; letter-spacing: 0.08em; color: var(--cyan); margin: 0;
     }
-
-    .panel-title.amber {
-      color: var(--amber);
-    }
-
-    .field {
-      margin-bottom: 1.1rem;
-    }
-
+    .panel-title.amber { color: var(--amber); }
+    .field { margin-bottom: 1.1rem; }
     label {
-      display: block;
-      font-size: 0.8rem;
-      font-weight: 700;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-      color: #cbd5e1;
-      margin-bottom: 0.45rem;
+      display: block; font-size: 0.8rem; font-weight: 700;
+      letter-spacing: 0.05em; text-transform: uppercase;
+      color: #cbd5e1; margin-bottom: 0.45rem;
     }
-
-    input[type="password"],
-    input[type="text"],
-    textarea {
-      width: 100%;
-      padding: 0.8rem 0.95rem;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      background: rgba(4, 7, 13, 0.78);
-      color: var(--text);
-      font-family: inherit;
-      font-size: 0.95rem;
-      outline: none;
-      transition: border-color 0.25s, box-shadow 0.25s;
+    input[type="password"], input[type="text"], textarea {
+      width: 100%; padding: 0.8rem 0.95rem; border-radius: 12px;
+      border: 1px solid var(--border); background: rgba(4, 7, 13, 0.78);
+      color: var(--text); font-family: inherit; font-size: 0.95rem; outline: none;
     }
-
-    textarea {
-      min-height: 155px;
-      resize: vertical;
-      line-height: 1.55;
-    }
-
-    textarea.short {
-      min-height: 82px;
-    }
-
-    input:focus, textarea:focus {
-      border-color: var(--cyan);
-      box-shadow: 0 0 18px rgba(56, 189, 248, 0.22);
-    }
-
+    textarea { min-height: 150px; resize: vertical; line-height: 1.55; }
+    textarea.short { min-height: 80px; }
+    input:focus, textarea:focus { border-color: var(--cyan); }
     input[type="file"] {
-      width: 100%;
-      padding: 0.65rem;
-      border-radius: 12px;
-      border: 1px dashed var(--border-bright);
-      background: rgba(4, 7, 13, 0.6);
-      color: var(--muted);
-      font-size: 0.88rem;
-      cursor: pointer;
+      width: 100%; padding: 0.65rem; border-radius: 12px;
+      border: 1px dashed var(--border-bright); background: rgba(4, 7, 13, 0.6);
+      color: var(--muted); font-size: 0.88rem;
     }
-
     .preview-box {
-      display: none;
-      margin-top: 0.75rem;
-      border-radius: 12px;
-      overflow: hidden;
-      border: 1px solid var(--border);
-      background: #03050a;
-      max-height: 220px;
+      display: none; margin-top: 0.75rem; border-radius: 12px;
+      overflow: hidden; border: 1px solid var(--border); max-height: 220px;
     }
-
-    .preview-box img {
-      width: 100%;
-      max-height: 220px;
-      object-fit: contain;
-      display: block;
-    }
-
-    .btn-row {
-      display: flex;
-      gap: 0.7rem;
-      flex-wrap: wrap;
-    }
-
+    .preview-box img { width: 100%; max-height: 220px; object-fit: contain; display: block; }
+    .btn-row { display: flex; gap: 0.7rem; flex-wrap: wrap; }
     .btn-primary {
-      width: 100%;
-      padding: 0.88rem 1.2rem;
-      border-radius: 12px;
+      width: 100%; padding: 0.88rem 1.2rem; border-radius: 12px;
       border: 1px solid var(--border-bright);
       background: linear-gradient(135deg, rgba(56, 189, 248, 0.24), rgba(168, 85, 247, 0.24));
-      color: #f8fafc;
-      font-family: 'Orbitron', sans-serif;
-      font-size: 0.88rem;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      cursor: pointer;
-      transition: all 0.22s ease;
+      color: #f8fafc; font-family: 'Orbitron', sans-serif; font-size: 0.88rem;
+      font-weight: 700; letter-spacing: 0.08em; cursor: pointer;
     }
-
-    .btn-primary:hover:not(:disabled) {
-      background: var(--cyan);
-      color: #030712;
-      box-shadow: 0 0 22px rgba(56, 189, 248, 0.55);
-    }
-
-    .btn-primary:disabled {
-      opacity: 0.55;
-      cursor: not-allowed;
-    }
-
+    .btn-primary:hover:not(:disabled) { background: var(--cyan); color: #030712; }
     .btn-amber {
-      flex: 1;
-      padding: 0.78rem 1rem;
-      border-radius: 12px;
-      border: 1px solid rgba(251, 191, 36, 0.55);
-      background: rgba(251, 191, 36, 0.16);
-      color: #fef3c7;
-      font-family: 'Orbitron', sans-serif;
-      font-size: 0.8rem;
-      font-weight: 700;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      cursor: pointer;
-      transition: all 0.22s ease;
+      flex: 1; padding: 0.78rem 1rem; border-radius: 12px;
+      border: 1px solid rgba(251, 191, 36, 0.55); background: rgba(251, 191, 36, 0.16);
+      color: #fef3c7; font-family: 'Orbitron', sans-serif; font-size: 0.8rem;
+      font-weight: 700; cursor: pointer;
     }
-
-    .btn-amber:hover:not(:disabled) {
-      background: var(--amber);
-      color: #030712;
-      box-shadow: 0 0 18px rgba(251, 191, 36, 0.45);
-    }
-
+    .btn-amber:hover:not(:disabled) { background: var(--amber); color: #030712; }
     .btn-ghost {
-      padding: 0.4rem 0.75rem;
-      border-radius: 8px;
-      border: 1px solid rgba(244, 63, 94, 0.45);
-      background: rgba(244, 63, 94, 0.12);
-      color: #fda4af;
-      font-family: inherit;
-      font-size: 0.78rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: 0.2s;
+      padding: 0.4rem 0.75rem; border-radius: 8px;
+      border: 1px solid rgba(244, 63, 94, 0.45); background: rgba(244, 63, 94, 0.12);
+      color: #fda4af; font-size: 0.78rem; font-weight: 700; cursor: pointer;
     }
-
-    .btn-ghost:hover {
-      background: var(--rose);
-      color: #fff;
-    }
-
     .status {
-      margin-top: 1rem;
-      padding: 0.8rem 1rem;
-      border-radius: 10px;
-      font-size: 0.88rem;
-      font-weight: 600;
-      display: none;
+      margin-top: 1rem; padding: 0.8rem 1rem; border-radius: 10px;
+      font-size: 0.88rem; font-weight: 600; display: none;
     }
-
-    .status.ok {
-      display: block;
-      background: rgba(52, 211, 153, 0.14);
-      border: 1px solid rgba(52, 211, 153, 0.45);
-      color: #6ee7b7;
-    }
-
-    .status.err {
-      display: block;
-      background: rgba(244, 63, 94, 0.14);
-      border: 1px solid rgba(244, 63, 94, 0.45);
-      color: #fda4af;
-    }
-
+    .status.ok { display: block; background: rgba(52, 211, 153, 0.14); color: #6ee7b7; }
+    .status.err { display: block; background: rgba(244, 63, 94, 0.14); color: #fda4af; }
     .hidden { display: none !important; }
   </style>
 </head>
 <body>
   <div class="bg-grid"></div>
   <div class="bg-glow"></div>
-
   <div class="container">
     <header>
-      <div class="title-wrap">
+      <div>
         <div class="eyebrow"><span class="live-dot"></span> 8-ARAULLO // UPLOAD TERMINAL</div>
-        <h1>
-          POST FOR
-          <canvas id="boysLogo" class="boys-logo-canvas" aria-label="THE BOYS"></canvas>
-        </h1>
+        <h1>POST FOR <canvas id="boysLogo" class="boys-logo-canvas" aria-label="THE BOYS"></canvas></h1>
       </div>
       <a href="assignments.html" class="nav-link">VIEW BOARD →</a>
     </header>
 
-    <!-- Admin Login Section -->
     <section class="panel" id="loginPanel">
-      <div class="panel-header">
-        <h2 class="panel-title">Admin Authentication</h2>
-      </div>
+      <div class="panel-header"><h2 class="panel-title">Admin Authentication</h2></div>
       <form id="loginForm">
         <div class="field">
           <label for="username">Username</label>
@@ -430,17 +176,15 @@
       <div class="status" id="loginStatus"></div>
     </section>
 
-    <!-- Admin Dashboard -->
     <div class="hidden" id="adminWorkspace">
-      <!-- Live Announcement Panel -->
       <section class="panel amber-panel">
         <div class="panel-header">
           <h2 class="panel-title amber">Public Announcement Banner</h2>
           <button type="button" class="btn-ghost" id="logoutBtn">Logout</button>
         </div>
         <div class="field">
-          <label for="announcementInput">Announcement Message (Visible to Everyone)</label>
-          <textarea id="announcementInput" class="short" placeholder="Type an announcement for the boys (leave blank to hide banner)..."></textarea>
+          <label for="announcementInput">Announcement Message</label>
+          <textarea id="announcementInput" class="short" placeholder="Type announcement or leave blank to hide..."></textarea>
         </div>
         <div class="btn-row">
           <button type="button" class="btn-amber" id="saveAnnouncementBtn">Update Announcement</button>
@@ -449,30 +193,25 @@
         <div class="status" id="announcementStatus"></div>
       </section>
 
-      <!-- Post Assignment Panel -->
       <section class="panel">
-        <div class="panel-header">
-          <h2 class="panel-title">New Assignment Record</h2>
-        </div>
+        <div class="panel-header"><h2 class="panel-title">New Assignment Record</h2></div>
         <form id="postForm">
           <div class="field">
             <label for="subject">Subject</label>
-            <input type="text" id="subject" placeholder="e.g. Algebra, Biology, English" required />
+            <input type="text" id="subject" placeholder="e.g. Algebra, Biology" required />
           </div>
           <div class="field">
             <label for="title">Assignment Title</label>
-            <input type="text" id="title" placeholder="e.g. Activity 4 - Polynomials" required />
+            <input type="text" id="title" placeholder="e.g. Activity 4" required />
           </div>
           <div class="field">
             <label for="answers">Answers</label>
-            <textarea id="answers" placeholder="Paste or type the answers here..." required></textarea>
+            <textarea id="answers" placeholder="Paste or type answers..." required></textarea>
           </div>
           <div class="field">
-            <label for="photo">Worksheet / Reference Photo (Optional)</label>
+            <label for="photo">Photo (Optional)</label>
             <input type="file" id="photo" accept="image/*" />
-            <div class="preview-box" id="previewBox">
-              <img id="previewImg" src="" alt="Preview" />
-            </div>
+            <div class="preview-box" id="previewBox"><img id="previewImg" src="" alt="Preview" /></div>
           </div>
           <button type="submit" class="btn-primary" id="submitBtn">Publish to Board</button>
         </form>
@@ -487,197 +226,150 @@
       img.src = 'boys-logo.jpg';
       img.onload = function () {
         const temp = document.createElement('canvas');
-        temp.width = img.naturalWidth;
-        temp.height = img.naturalHeight;
+        temp.width = img.naturalWidth; temp.height = img.naturalHeight;
         const tctx = temp.getContext('2d');
         tctx.drawImage(img, 0, 0);
-
         const imgData = tctx.getImageData(0, 0, temp.width, temp.height);
         const d = imgData.data;
         let minX = temp.width, minY = temp.height, maxX = 0, maxY = 0;
-
         for (let y = 0; y < temp.height; y++) {
           for (let x = 0; x < temp.width; x++) {
             const i = (y * temp.width + x) * 4;
-            const r = d[i], g = d[i + 1], b = d[i + 2];
-            const whiteness = Math.min(r, g, b);
-            if (whiteness > 210) {
-              d[i + 3] = 0;
-            } else if (whiteness > 140) {
-              d[i + 3] = Math.round(((210 - whiteness) / 70) * 255);
-            }
+            const w = Math.min(d[i], d[i + 1], d[i + 2]);
+            if (w > 210) d[i + 3] = 0;
+            else if (w > 140) d[i + 3] = Math.round(((210 - w) / 70) * 255);
             if (d[i + 3] > 10) {
-              if (x < minX) minX = x;
-              if (x > maxX) maxX = x;
-              if (y < minY) minY = y;
-              if (y > maxY) maxY = y;
+              if (x < minX) minX = x; if (x > maxX) maxX = x;
+              if (y < minY) minY = y; if (y > maxY) maxY = y;
             }
           }
         }
         tctx.putImageData(imgData, 0, 0);
-
         const out = document.getElementById('boysLogo');
         if (maxX >= minX && maxY >= minY) {
-          const pad = 4;
-          const cw = maxX - minX + 1 + pad * 2;
-          const ch = maxY - minY + 1 + pad * 2;
-          out.width = cw;
-          out.height = ch;
-          out.getContext('2d').drawImage(
-            temp,
-            minX,
-            minY,
-            maxX - minX + 1,
-            maxY - minY + 1,
-            pad,
-            pad,
-            maxX - minX + 1,
-            maxY - minY + 1
-          );
+          const pad = 4, sw = maxX - minX + 1, sh = maxY - minY + 1;
+          out.width = sw + pad * 2; out.height = sh + pad * 2;
+          out.getContext('2d').drawImage(temp, minX, minY, sw, sh, pad, pad, sw, sh);
         }
       };
     })();
   </script>
+    <script>
+    (function () {
+      const SUPABASE_URL = 'https://hnymghztclawsjcmodvq.supabase.co';
+      const SUPABASE_ANON_KEY = 'sb_publishable_n0klvUjn0JdKqzLkEruh-Q_FuiFVzSe';
+      const db = (window.supabase && typeof window.supabase.createClient === 'function')
+        ? window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
 
-  <script type="module">
-    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+      const ADMIN_USER = 'admin', ADMIN_PASS = 'rainier', AUTH_KEY = 'araullo_boys_admin_ok';
+      const loginPanel = document.getElementById('loginPanel');
+      const adminWorkspace = document.getElementById('adminWorkspace');
+      const loginStatus = document.getElementById('loginStatus');
+      const postStatus = document.getElementById('postStatus');
+      const announcementStatus = document.getElementById('announcementStatus');
 
-    const SUPABASE_URL = 'https://hnymghztclawsjcmodvq.supabase.co';
-    const SUPABASE_ANON_KEY = 'sb_publishable_n0klvUjn0JdKqzLkEruh-Q_FuiFVzSe';
-    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-    const ADMIN_USER = 'admin';
-    const ADMIN_PASS = 'rainier';
-    const AUTH_KEY = 'araullo_boys_admin_ok';
-
-    const loginPanel = document.getElementById('loginPanel');
-    const adminWorkspace = document.getElementById('adminWorkspace');
-    const loginStatus = document.getElementById('loginStatus');
-    const postStatus = document.getElementById('postStatus');
-    const announcementStatus = document.getElementById('announcementStatus');
-
-    function showStatus(el, msg, isOk) {
-      el.textContent = msg;
-      el.className = 'status ' + (isOk ? 'ok' : 'err');
-    }
-
-    async function loadCurrentAnnouncement() {
-      const { data } = await supabase
-        .from('announcements')
-        .select('message')
-        .eq('id', 1)
-        .maybeSingle();
-
-      if (data) {
-        document.getElementById('announcementInput').value = data.message || '';
+      function showStatus(el, msg, isOk) {
+        el.textContent = msg;
+        el.className = 'status ' + (isOk ? 'ok' : 'err');
       }
-    }
 
-    function syncAuthUI() {
-      const unlocked = sessionStorage.getItem(AUTH_KEY) === '1';
-      loginPanel.classList.toggle('hidden', unlocked);
-      adminWorkspace.classList.toggle('hidden', !unlocked);
-      if (unlocked) loadCurrentAnnouncement();
-    }
-
-    syncAuthUI();
-
-    document.getElementById('loginForm').addEventListener('submit', (e) => {
-      e.preventDefault();
-      loginStatus.className = 'status';
-
-      const user = document.getElementById('username').value.trim();
-      const pass = document.getElementById('password').value;
-
-      if (user === ADMIN_USER && pass === ADMIN_PASS) {
-        sessionStorage.setItem(AUTH_KEY, '1');
-        document.getElementById('loginForm').reset();
-        syncAuthUI();
-      } else {
-        showStatus(loginStatus, 'Invalid username or password.', false);
+      async function loadCurrentAnnouncement() {
+        if (!db) return;
+        try {
+          const { data } = await db.from('announcements').select('message').eq('id', 1).maybeSingle();
+          if (data) document.getElementById('announcementInput').value = data.message || '';
+        } catch (_) {}
       }
-    });
 
-    document.getElementById('logoutBtn').addEventListener('click', () => {
-      sessionStorage.removeItem(AUTH_KEY);
+      function syncAuthUI() {
+        const unlocked = sessionStorage.getItem(AUTH_KEY) === '1';
+        loginPanel.classList.toggle('hidden', unlocked);
+        adminWorkspace.classList.toggle('hidden', !unlocked);
+        if (unlocked) loadCurrentAnnouncement();
+      }
       syncAuthUI();
-    });
 
-    async function saveAnnouncement(msg) {
-      const btn = document.getElementById('saveAnnouncementBtn');
-      btn.disabled = true;
-      announcementStatus.className = 'status';
-
-      const { error } = await supabase
-        .from('announcements')
-        .upsert({ id: 1, message: msg, updated_at: new Date().toISOString() });
-
-      btn.disabled = false;
-
-      if (error) {
-        showStatus(announcementStatus, error.message, false);
-      } else {
-        showStatus(
-          announcementStatus,
-          msg ? 'Announcement updated for everyone!' : 'Announcement banner cleared.',
-          true
-        );
-      }
-    }
-
-    document.getElementById('saveAnnouncementBtn').addEventListener('click', () => {
-      const msg = document.getElementById('announcementInput').value.trim();
-      saveAnnouncement(msg);
-    });
-
-    document.getElementById('clearAnnouncementBtn').addEventListener('click', () => {
-      document.getElementById('announcementInput').value = '';
-      saveAnnouncement('');
-    });
-
-    document.getElementById('photo').addEventListener('change', (e) => {
-      const file = e.target.files?.[0];
-      const box = document.getElementById('previewBox');
-      const img = document.getElementById('previewImg');
-      if (file) {
-        img.src = URL.createObjectURL(file);
-        box.style.display = 'block';
-      } else {
-        img.src = '';
-        box.style.display = 'none';
-      }
-    });
-
-    document.getElementById('postForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const btn = document.getElementById('submitBtn');
-      btn.disabled = true;
-      btn.textContent = 'Publishing...';
-      postStatus.className = 'status';
-
-      try {
-        const subject = document.getElementById('subject').value.trim();
-        const title = document.getElementById('title').value.trim();
-        const answers = document.getElementById('answers').value.trim();
-        const file = document.getElementById('photo').files?.[0];
-
-        let photoUrl = '';
-
-        if (file) {
-          const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
-          const filePath = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-
-          const { error: uploadErr } = await supabase.storage
-            .from('assignment-photos')
-            .upload(filePath, file, { cacheControl: '3600', upsert: false });
-
-          if (uploadErr) throw uploadErr;
-
-          const { data: pubData } = supabase.storage
-            .from('assignment-photos')
-            .getPublicUrl(filePath);
-
-          photoUrl = pubData.publicUrl;
+      document.getElementById('loginForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        loginStatus.className = 'status';
+        const u = document.getElementById('username').value.trim().toLowerCase();
+        const p = document.getElementById('password').value.trim();
+        if (u === ADMIN_USER && p === ADMIN_PASS) {
+          sessionStorage.setItem(AUTH_KEY, '1');
+          document.getElementById('loginForm').reset();
+          syncAuthUI();
+        } else {
+          showStatus(loginStatus, 'Invalid username or password.', false);
         }
+      });
 
-        const createdDate = ne
+      document.getElementById('logoutBtn').addEventListener('click', () => {
+        sessionStorage.removeItem(AUTH_KEY);
+        syncAuthUI();
+      });
+
+      async function saveAnnouncement(msg) {
+        if (!db) return showStatus(announcementStatus, 'Supabase client failed to load.', false);
+        const btn = document.getElementById('saveAnnouncementBtn');
+        btn.disabled = true; announcementStatus.className = 'status';
+        try {
+          const { error } = await db.from('announcements')
+            .upsert({ id: 1, message: msg, updated_at: new Date().toISOString() });
+          if (error) throw error;
+          showStatus(announcementStatus, msg ? 'Announcement updated!' : 'Announcement cleared.', true);
+        } catch (err) {
+          showStatus(announcementStatus, err.message || 'Update failed.', false);
+        } finally { btn.disabled = false; }
+      }
+
+      document.getElementById('saveAnnouncementBtn').addEventListener('click', () => {
+        saveAnnouncement(document.getElementById('announcementInput').value.trim());
+      });
+      document.getElementById('clearAnnouncementBtn').addEventListener('click', () => {
+        document.getElementById('announcementInput').value = '';
+        saveAnnouncement('');
+      });
+
+      document.getElementById('photo').addEventListener('change', (e) => {
+        const file = e.target.files?.[0];
+        const box = document.getElementById('previewBox');
+        const img = document.getElementById('previewImg');
+        if (file) { img.src = URL.createObjectURL(file); box.style.display = 'block'; }
+        else { img.src = ''; box.style.display = 'none'; }
+      });
+
+      document.getElementById('postForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        if (!db) return showStatus(postStatus, 'Supabase client failed to load.', false);
+        const btn = document.getElementById('submitBtn');
+        btn.disabled = true; btn.textContent = 'Publishing...'; postStatus.className = 'status';
+        try {
+          const subject = document.getElementById('subject').value.trim();
+          const title = document.getElementById('title').value.trim();
+          const answers = document.getElementById('answers').value.trim();
+          const file = document.getElementById('photo').files?.[0];
+          let photoUrl = '';
+          if (file) {
+            const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+            const filePath = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+            const { error: upErr } = await db.storage.from('assignment-photos').upload(filePath, file);
+            if (upErr) throw upErr;
+            photoUrl = db.storage.from('assignment-photos').getPublicUrl(filePath).data.publicUrl;
+          }
+          const createdDate = new Date().toLocaleDateString('en-US', {
+            month: 'short', day: 'numeric', year: 'numeric'
+          });
+          const { error: insErr } = await db.from('assignments')
+            .insert([{ subject, title, answers, photo_url: photoUrl, created_date: createdDate }]);
+          if (insErr) throw insErr;
+          document.getElementById('postForm').reset();
+          document.getElementById('previewBox').style.display = 'none';
+          showStatus(postStatus, 'Assignment published!', true);
+        } catch (err) {
+          showStatus(postStatus, err.message || 'Publish failed.', false);
+        } finally { btn.disabled = false; btn.textContent = 'Publish to Board'; }
+      });
+    })();
+  </script>
+</body>
+</html>
