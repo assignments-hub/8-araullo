@@ -17,6 +17,7 @@
       --cyan: #38bdf8;
       --violet: #a855f7;
       --emerald: #34d399;
+      --amber: #fbbf24;
       --rose: #f43f5e;
       --text: #f1f5f9;
       --muted: #94a3b8;
@@ -142,11 +143,6 @@
       animation: blinkDot 1.8s infinite;
     }
 
-    @keyframes blinkDot {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.35; transform: scale(0.8); }
-    }
-
     h1 {
       margin: 0;
       font-family: 'Orbitron', sans-serif;
@@ -195,8 +191,13 @@
       border: 1px solid var(--border);
       border-radius: 16px;
       padding: 1.5rem;
+      margin-bottom: 1.35rem;
       box-shadow: 0 12px 32px rgba(2, 6, 23, 0.65);
       animation: fadeDown 0.6s ease-out both;
+    }
+
+    .panel.amber-panel {
+      border-color: rgba(251, 191, 36, 0.35);
     }
 
     .panel-header {
@@ -217,6 +218,10 @@
       text-transform: uppercase;
       color: var(--cyan);
       margin: 0;
+    }
+
+    .panel-title.amber {
+      color: var(--amber);
     }
 
     .field {
@@ -254,6 +259,10 @@
       line-height: 1.55;
     }
 
+    textarea.short {
+      min-height: 82px;
+    }
+
     input:focus, textarea:focus {
       border-color: var(--cyan);
       box-shadow: 0 0 18px rgba(56, 189, 248, 0.22);
@@ -287,6 +296,12 @@
       display: block;
     }
 
+    .btn-row {
+      display: flex;
+      gap: 0.7rem;
+      flex-wrap: wrap;
+    }
+
     .btn-primary {
       width: 100%;
       padding: 0.88rem 1.2rem;
@@ -312,6 +327,28 @@
     .btn-primary:disabled {
       opacity: 0.55;
       cursor: not-allowed;
+    }
+
+    .btn-amber {
+      flex: 1;
+      padding: 0.78rem 1rem;
+      border-radius: 12px;
+      border: 1px solid rgba(251, 191, 36, 0.55);
+      background: rgba(251, 191, 36, 0.16);
+      color: #fef3c7;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.22s ease;
+    }
+
+    .btn-amber:hover:not(:disabled) {
+      background: var(--amber);
+      color: #030712;
+      box-shadow: 0 0 18px rgba(251, 191, 36, 0.45);
     }
 
     .btn-ghost {
@@ -393,36 +430,55 @@
       <div class="status" id="loginStatus"></div>
     </section>
 
-    <!-- Post Assignment Section -->
-    <section class="panel hidden" id="postPanel">
-      <div class="panel-header">
-        <h2 class="panel-title">New Assignment Record</h2>
-        <button type="button" class="btn-ghost" id="logoutBtn">Logout</button>
-      </div>
-      <form id="postForm">
-        <div class="field">
-          <label for="subject">Subject</label>
-          <input type="text" id="subject" placeholder="e.g. Algebra, Biology, English" required />
+    <!-- Admin Dashboard -->
+    <div class="hidden" id="adminWorkspace">
+      <!-- Live Announcement Panel -->
+      <section class="panel amber-panel">
+        <div class="panel-header">
+          <h2 class="panel-title amber">Public Announcement Banner</h2>
+          <button type="button" class="btn-ghost" id="logoutBtn">Logout</button>
         </div>
         <div class="field">
-          <label for="title">Assignment Title</label>
-          <input type="text" id="title" placeholder="e.g. Activity 4 - Polynomials" required />
+          <label for="announcementInput">Announcement Message (Visible to Everyone)</label>
+          <textarea id="announcementInput" class="short" placeholder="Type an announcement for the boys (leave blank to hide banner)..."></textarea>
         </div>
-        <div class="field">
-          <label for="answers">Answers</label>
-          <textarea id="answers" placeholder="Paste or type the answers here..." required></textarea>
+        <div class="btn-row">
+          <button type="button" class="btn-amber" id="saveAnnouncementBtn">Update Announcement</button>
+          <button type="button" class="btn-ghost" id="clearAnnouncementBtn">Clear</button>
         </div>
-        <div class="field">
-          <label for="photo">Worksheet / Reference Photo (Optional)</label>
-          <input type="file" id="photo" accept="image/*" />
-          <div class="preview-box" id="previewBox">
-            <img id="previewImg" src="" alt="Preview" />
+        <div class="status" id="announcementStatus"></div>
+      </section>
+
+      <!-- Post Assignment Panel -->
+      <section class="panel">
+        <div class="panel-header">
+          <h2 class="panel-title">New Assignment Record</h2>
+        </div>
+        <form id="postForm">
+          <div class="field">
+            <label for="subject">Subject</label>
+            <input type="text" id="subject" placeholder="e.g. Algebra, Biology, English" required />
           </div>
-        </div>
-        <button type="submit" class="btn-primary" id="submitBtn">Publish to Board</button>
-      </form>
-      <div class="status" id="postStatus"></div>
-    </section>
+          <div class="field">
+            <label for="title">Assignment Title</label>
+            <input type="text" id="title" placeholder="e.g. Activity 4 - Polynomials" required />
+          </div>
+          <div class="field">
+            <label for="answers">Answers</label>
+            <textarea id="answers" placeholder="Paste or type the answers here..." required></textarea>
+          </div>
+          <div class="field">
+            <label for="photo">Worksheet / Reference Photo (Optional)</label>
+            <input type="file" id="photo" accept="image/*" />
+            <div class="preview-box" id="previewBox">
+              <img id="previewImg" src="" alt="Preview" />
+            </div>
+          </div>
+          <button type="submit" class="btn-primary" id="submitBtn">Publish to Board</button>
+        </form>
+        <div class="status" id="postStatus"></div>
+      </section>
+    </div>
   </div>
 
   <script>
@@ -495,19 +551,33 @@
     const AUTH_KEY = 'araullo_boys_admin_ok';
 
     const loginPanel = document.getElementById('loginPanel');
-    const postPanel = document.getElementById('postPanel');
+    const adminWorkspace = document.getElementById('adminWorkspace');
     const loginStatus = document.getElementById('loginStatus');
     const postStatus = document.getElementById('postStatus');
+    const announcementStatus = document.getElementById('announcementStatus');
 
     function showStatus(el, msg, isOk) {
       el.textContent = msg;
       el.className = 'status ' + (isOk ? 'ok' : 'err');
     }
 
+    async function loadCurrentAnnouncement() {
+      const { data } = await supabase
+        .from('announcements')
+        .select('message')
+        .eq('id', 1)
+        .maybeSingle();
+
+      if (data) {
+        document.getElementById('announcementInput').value = data.message || '';
+      }
+    }
+
     function syncAuthUI() {
       const unlocked = sessionStorage.getItem(AUTH_KEY) === '1';
       loginPanel.classList.toggle('hidden', unlocked);
-      postPanel.classList.toggle('hidden', !unlocked);
+      adminWorkspace.classList.toggle('hidden', !unlocked);
+      if (unlocked) loadCurrentAnnouncement();
     }
 
     syncAuthUI();
@@ -531,6 +601,38 @@
     document.getElementById('logoutBtn').addEventListener('click', () => {
       sessionStorage.removeItem(AUTH_KEY);
       syncAuthUI();
+    });
+
+    async function saveAnnouncement(msg) {
+      const btn = document.getElementById('saveAnnouncementBtn');
+      btn.disabled = true;
+      announcementStatus.className = 'status';
+
+      const { error } = await supabase
+        .from('announcements')
+        .upsert({ id: 1, message: msg, updated_at: new Date().toISOString() });
+
+      btn.disabled = false;
+
+      if (error) {
+        showStatus(announcementStatus, error.message, false);
+      } else {
+        showStatus(
+          announcementStatus,
+          msg ? 'Announcement updated for everyone!' : 'Announcement banner cleared.',
+          true
+        );
+      }
+    }
+
+    document.getElementById('saveAnnouncementBtn').addEventListener('click', () => {
+      const msg = document.getElementById('announcementInput').value.trim();
+      saveAnnouncement(msg);
+    });
+
+    document.getElementById('clearAnnouncementBtn').addEventListener('click', () => {
+      document.getElementById('announcementInput').value = '';
+      saveAnnouncement('');
     });
 
     document.getElementById('photo').addEventListener('change', (e) => {
@@ -578,34 +680,4 @@
           photoUrl = pubData.publicUrl;
         }
 
-        const createdDate = new Date().toLocaleDateString('en-US', {
-          month: 'short',
-          day: 'numeric',
-          year: 'numeric',
-        });
-
-        const { error: insertErr } = await supabase
-          .from('assignments')
-          .insert([{
-            subject,
-            title,
-            answers,
-            photo_url: photoUrl,
-            created_date: createdDate,
-          }]);
-
-        if (insertErr) throw insertErr;
-
-        document.getElementById('postForm').reset();
-        document.getElementById('previewBox').style.display = 'none';
-        showStatus(postStatus, 'Assignment published to the board!', true);
-      } catch (err) {
-        showStatus(postStatus, err.message || 'Failed to publish assignment.', false);
-      } finally {
-        btn.disabled = false;
-        btn.textContent = 'Publish to Board';
-      }
-    });
-  </script>
-</body>
-</html>
+        const createdDate = ne
