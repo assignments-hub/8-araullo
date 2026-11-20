@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>8-Araullo // Assignment Hub</title>
+  <title>8-Araullo // Class Assignment for the BOYS</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -118,7 +118,7 @@
     .title-wrap {
       display: flex;
       flex-direction: column;
-      gap: 0.3rem;
+      gap: 0.35rem;
     }
 
     .eyebrow {
@@ -149,12 +149,23 @@
     h1 {
       margin: 0;
       font-family: 'Orbitron', sans-serif;
-      font-size: clamp(1.3rem, 3vw, 1.75rem);
+      font-size: clamp(1.1rem, 2.7vw, 1.55rem);
       font-weight: 800;
       letter-spacing: 0.04em;
-      background: linear-gradient(90deg, #ffffff, #bae6fd, #c084fc);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      color: #f8fafc;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.55rem;
+    }
+
+    .boys-logo-img {
+      height: 3.1rem;
+      width: auto;
+      object-fit: contain;
+      mix-blend-mode: screen;
+      filter: drop-shadow(0 0 10px rgba(239, 68, 68, 0.35));
+      transform: translateY(2px);
     }
 
     .subtitle {
@@ -431,7 +442,10 @@
     <header>
       <div class="title-wrap">
         <div class="eyebrow"><span class="live-dot"></span> 8-ARAULLO // DATABASE ONLINE</div>
-        <h1>CLASS ASSIGNMENT HUB</h1>
+        <h1>
+          CLASS ASSIGNMENT FOR THE
+          <img src="boys-logo.jpg" alt="THE BOYS" class="boys-logo-img" />
+        </h1>
         <div class="subtitle" id="countText">Syncing records...</div>
       </div>
     </header>
