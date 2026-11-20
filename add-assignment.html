@@ -3,163 +3,607 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Post Class Assignment</title>
+  <title>8-Araullo // Post Assignment</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
+    :root {
+      --bg: #04070d;
+      --surface: rgba(13, 20, 36, 0.72);
+      --surface-solid: #0d1424;
+      --border: rgba(56, 189, 248, 0.22);
+      --border-bright: rgba(56, 189, 248, 0.65);
+      --cyan: #38bdf8;
+      --violet: #a855f7;
+      --emerald: #34d399;
+      --rose: #f43f5e;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+    }
+
+    * { box-sizing: border-box; }
+
     body {
       margin: 0;
-      font-family: system-ui, sans-serif;
-      background: #0b0d12;
-      color: #f1f5f9;
-      padding: 1.5rem 1rem 3rem;
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 1.75rem 1rem 4.5rem;
+      overflow-x: hidden;
+      position: relative;
     }
-    .wrap { max-width: 600px; margin: 0 auto; }
-    a { color: #60a5fa; text-decoration: none; display: inline-block; margin-bottom: 1rem; }
-    .box {
-      background: #141821;
-      border: 1px solid #283044;
-      border-radius: 12px;
-      padding: 1.25rem;
+
+    /* Animated Cyber Grid + Ambient Orbs */
+    .bg-grid {
+      position: fixed;
+      inset: 0;
+      z-index: -2;
+      background-image:
+        linear-gradient(to right, rgba(56, 189, 248, 0.06) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(56, 189, 248, 0.06) 1px, transparent 1px);
+      background-size: 42px 42px;
+      mask-image: radial-gradient(ellipse at 50% 20%, #000 45%, transparent 90%);
+      -webkit-mask-image: radial-gradient(ellipse at 50% 20%, #000 45%, transparent 90%);
+      animation: gridDrift 24s linear infinite;
     }
-    label { display: block; margin-top: 0.9rem; margin-bottom: 0.3rem; font-weight: 600; font-size: 0.9rem; }
-    input, textarea {
-      width: 100%;
-      box-sizing: border-box;
-      padding: 0.7rem;
-      border-radius: 8px;
-      border: 1px solid #283044;
-      background: #0b0d12;
-      color: #f1f5f9;
-      font-size: 1rem;
-      font-family: inherit;
+
+    .bg-glow {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      background:
+        radial-gradient(circle at 15% 15%, rgba(56, 189, 248, 0.16), transparent 40%),
+        radial-gradient(circle at 85% 25%, rgba(168, 85, 247, 0.14), transparent 42%);
+      animation: pulseGlow 8s ease-in-out infinite alternate;
     }
-    textarea { min-height: 140px; }
-    button {
-      margin-top: 1.2rem;
-      width: 100%;
-      padding: 0.8rem;
-      border: 0;
-      border-radius: 8px;
-      background: #3b82f6;
-      color: #fff;
-      font-size: 1rem;
+
+    @keyframes gridDrift {
+      0% { background-position: 0 0; }
+      100% { background-position: 42px 42px; }
+    }
+
+    @keyframes pulseGlow {
+      0% { opacity: 0.75; transform: scale(1); }
+      100% { opacity: 1; transform: scale(1.04); }
+    }
+
+    .container {
+      max-width: 680px;
+      margin: 0 auto;
+    }
+
+    /* HUD Header */
+    header {
+      position: relative;
+      background: var(--surface);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.35rem 1.5rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      box-shadow: 0 0 30px rgba(56, 189, 248, 0.08);
+      overflow: hidden;
+      animation: fadeDown 0.5s ease-out both;
+    }
+
+    header::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 60%;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--cyan), var(--violet), transparent);
+      animation: scanLine 4.5s ease-in-out infinite;
+    }
+
+    @keyframes scanLine {
+      0% { left: -60%; }
+      100% { left: 120%; }
+    }
+
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-14px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .title-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .eyebrow {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.7rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--cyan);
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--emerald);
+      box-shadow: 0 0 10px var(--emerald);
+      animation: blinkDot 1.8s infinite;
+    }
+
+    @keyframes blinkDot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.35; transform: scale(0.8); }
+    }
+
+    h1 {
+      margin: 0;
+      font-family: 'Orbitron', sans-serif;
+      font-size: clamp(1.05rem, 2.6vw, 1.45rem);
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      color: #f8fafc;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.55rem;
+    }
+
+    .boys-logo-canvas {
+      height: 2.2rem;
+      width: auto;
+      vertical-align: middle;
+      filter: drop-shadow(0 0 10px rgba(239, 68, 68, 0.45));
+      transform: translateY(1px);
+    }
+
+    .nav-link {
+      padding: 0.5rem 0.9rem;
+      border-radius: 10px;
+      border: 1px solid var(--border-bright);
+      background: rgba(56, 189, 248, 0.1);
+      color: #bae6fd;
+      text-decoration: none;
+      font-size: 0.82rem;
       font-weight: 700;
+      letter-spacing: 0.03em;
+      transition: all 0.2s ease;
+    }
+
+    .nav-link:hover {
+      background: var(--cyan);
+      color: #030712;
+      box-shadow: 0 0 16px rgba(56, 189, 248, 0.45);
+    }
+
+    /* HUD Panel */
+    .panel {
+      background: var(--surface);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      box-shadow: 0 12px 32px rgba(2, 6, 23, 0.65);
+      animation: fadeDown 0.6s ease-out both;
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+      padding-bottom: 0.85rem;
+      border-bottom: 1px solid rgba(56, 189, 248, 0.15);
+    }
+
+    .panel-title {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--cyan);
+      margin: 0;
+    }
+
+    .field {
+      margin-bottom: 1.1rem;
+    }
+
+    label {
+      display: block;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: #cbd5e1;
+      margin-bottom: 0.45rem;
+    }
+
+    input[type="password"],
+    input[type="text"],
+    textarea {
+      width: 100%;
+      padding: 0.8rem 0.95rem;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: rgba(4, 7, 13, 0.78);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.95rem;
+      outline: none;
+      transition: border-color 0.25s, box-shadow 0.25s;
+    }
+
+    textarea {
+      min-height: 155px;
+      resize: vertical;
+      line-height: 1.55;
+    }
+
+    input:focus, textarea:focus {
+      border-color: var(--cyan);
+      box-shadow: 0 0 18px rgba(56, 189, 248, 0.22);
+    }
+
+    input[type="file"] {
+      width: 100%;
+      padding: 0.65rem;
+      border-radius: 12px;
+      border: 1px dashed var(--border-bright);
+      background: rgba(4, 7, 13, 0.6);
+      color: var(--muted);
+      font-size: 0.88rem;
       cursor: pointer;
     }
-    #status { margin-top: 0.9rem; font-weight: 600; }
+
+    .preview-box {
+      display: none;
+      margin-top: 0.75rem;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: #03050a;
+      max-height: 220px;
+    }
+
+    .preview-box img {
+      width: 100%;
+      max-height: 220px;
+      object-fit: contain;
+      display: block;
+    }
+
+    .btn-primary {
+      width: 100%;
+      padding: 0.88rem 1.2rem;
+      border-radius: 12px;
+      border: 1px solid var(--border-bright);
+      background: linear-gradient(135deg, rgba(56, 189, 248, 0.24), rgba(168, 85, 247, 0.24));
+      color: #f8fafc;
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.88rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.22s ease;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: var(--cyan);
+      color: #030712;
+      box-shadow: 0 0 22px rgba(56, 189, 248, 0.55);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    .btn-ghost {
+      padding: 0.4rem 0.75rem;
+      border-radius: 8px;
+      border: 1px solid rgba(244, 63, 94, 0.45);
+      background: rgba(244, 63, 94, 0.12);
+      color: #fda4af;
+      font-family: inherit;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .btn-ghost:hover {
+      background: var(--rose);
+      color: #fff;
+    }
+
+    .status {
+      margin-top: 1rem;
+      padding: 0.8rem 1rem;
+      border-radius: 10px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      display: none;
+    }
+
+    .status.ok {
+      display: block;
+      background: rgba(52, 211, 153, 0.14);
+      border: 1px solid rgba(52, 211, 153, 0.45);
+      color: #6ee7b7;
+    }
+
+    .status.err {
+      display: block;
+      background: rgba(244, 63, 94, 0.14);
+      border: 1px solid rgba(244, 63, 94, 0.45);
+      color: #fda4af;
+    }
+
+    .hidden { display: none !important; }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <a href="assignments.html">← Back to Board</a>
+  <div class="bg-grid"></div>
+  <div class="bg-glow"></div>
 
-    <div class="box" id="authBox">
-      <h2>Admin Login</h2>
-      <label for="u">Username</label>
-      <input id="u" type="text" autocomplete="off" />
-      <label for="p">Password</label>
-      <input id="p" type="text" autocomplete="off" />
-      <button id="loginBtn" type="button">Login</button>
-      <div id="authErr" style="color:#f87171;margin-top:0.75rem;"></div>
-    </div>
+  <div class="container">
+    <header>
+      <div class="title-wrap">
+        <div class="eyebrow"><span class="live-dot"></span> 8-ARAULLO // UPLOAD TERMINAL</div>
+        <h1>
+          POST FOR
+          <canvas id="boysLogo" class="boys-logo-canvas" aria-label="THE BOYS"></canvas>
+        </h1>
+      </div>
+      <a href="assignments.html" class="nav-link">VIEW BOARD →</a>
+    </header>
 
-    <div class="box" id="postBox" style="display:none;">
-      <h2>Post Assignment</h2>
-      <form id="postForm">
-        <label for="subject">Subject</label>
-        <input id="subject" type="text" required />
-
-        <label for="title">Title / Activity #</label>
-        <input id="title" type="text" required />
-
-        <label for="photo">Photo</label>
-        <input id="photo" type="file" accept="image/*" />
-
-        <label for="answers">Answers</label>
-        <textarea id="answers" required></textarea>
-
-        <button id="publishBtn" type="submit">Publish Assignment</button>
-        <div id="status"></div>
+    <!-- Admin Login Section -->
+    <section class="panel" id="loginPanel">
+      <div class="panel-header">
+        <h2 class="panel-title">Admin Authentication</h2>
+      </div>
+      <form id="loginForm">
+        <div class="field">
+          <label for="username">Username</label>
+          <input type="text" id="username" placeholder="Enter username" autocomplete="username" required />
+        </div>
+        <div class="field">
+          <label for="password">Password</label>
+          <input type="password" id="password" placeholder="••••••••" autocomplete="current-password" required />
+        </div>
+        <button type="submit" class="btn-primary">Unlock Terminal</button>
       </form>
-    </div>
+      <div class="status" id="loginStatus"></div>
+    </section>
+
+    <!-- Post Assignment Section -->
+    <section class="panel hidden" id="postPanel">
+      <div class="panel-header">
+        <h2 class="panel-title">New Assignment Record</h2>
+        <button type="button" class="btn-ghost" id="logoutBtn">Logout</button>
+      </div>
+      <form id="postForm">
+        <div class="field">
+          <label for="subject">Subject</label>
+          <input type="text" id="subject" placeholder="e.g. Algebra, Biology, English" required />
+        </div>
+        <div class="field">
+          <label for="title">Assignment Title</label>
+          <input type="text" id="title" placeholder="e.g. Activity 4 - Polynomials" required />
+        </div>
+        <div class="field">
+          <label for="answers">Answers</label>
+          <textarea id="answers" placeholder="Paste or type the answers here..." required></textarea>
+        </div>
+        <div class="field">
+          <label for="photo">Worksheet / Reference Photo (Optional)</label>
+          <input type="file" id="photo" accept="image/*" />
+          <div class="preview-box" id="previewBox">
+            <img id="previewImg" src="" alt="Preview" />
+          </div>
+        </div>
+        <button type="submit" class="btn-primary" id="submitBtn">Publish to Board</button>
+      </form>
+      <div class="status" id="postStatus"></div>
+    </section>
   </div>
 
   <script>
-    const authBox = document.getElementById('authBox');
-    const postBox = document.getElementById('postBox');
-    const uEl = document.getElementById('u');
-    const pEl = document.getElementById('p');
-    const authErr = document.getElementById('authErr');
+    (function () {
+      const img = new Image();
+      img.src = 'boys-logo.jpg';
+      img.onload = function () {
+        const temp = document.createElement('canvas');
+        temp.width = img.naturalWidth;
+        temp.height = img.naturalHeight;
+        const tctx = temp.getContext('2d');
+        tctx.drawImage(img, 0, 0);
 
-    if (sessionStorage.getItem('hub_ok') === '1') {
-      authBox.style.display = 'none';
-      postBox.style.display = 'block';
-    }
+        const imgData = tctx.getImageData(0, 0, temp.width, temp.height);
+        const d = imgData.data;
+        let minX = temp.width, minY = temp.height, maxX = 0, maxY = 0;
 
-    document.getElementById('loginBtn').addEventListener('click', function () {
-      if (uEl.value.trim() === 'admin' && pEl.value === 'rainier') {
-        sessionStorage.setItem('hub_ok', '1');
-        authBox.style.display = 'none';
-        postBox.style.display = 'block';
-      } else {
-        authErr.textContent = 'Wrong username or password.';
-      }
-    });
+        for (let y = 0; y < temp.height; y++) {
+          for (let x = 0; x < temp.width; x++) {
+            const i = (y * temp.width + x) * 4;
+            const r = d[i], g = d[i + 1], b = d[i + 2];
+            const whiteness = Math.min(r, g, b);
+            if (whiteness > 210) {
+              d[i + 3] = 0;
+            } else if (whiteness > 140) {
+              d[i + 3] = Math.round(((210 - whiteness) / 70) * 255);
+            }
+            if (d[i + 3] > 10) {
+              if (x < minX) minX = x;
+              if (x > maxX) maxX = x;
+              if (y < minY) minY = y;
+              if (y > maxY) maxY = y;
+            }
+          }
+        }
+        tctx.putImageData(imgData, 0, 0);
+
+        const out = document.getElementById('boysLogo');
+        if (maxX >= minX && maxY >= minY) {
+          const pad = 4;
+          const cw = maxX - minX + 1 + pad * 2;
+          const ch = maxY - minY + 1 + pad * 2;
+          out.width = cw;
+          out.height = ch;
+          out.getContext('2d').drawImage(
+            temp,
+            minX,
+            minY,
+            maxX - minX + 1,
+            maxY - minY + 1,
+            pad,
+            pad,
+            maxX - minX + 1,
+            maxY - minY + 1
+          );
+        }
+      };
+    })();
   </script>
 
   <script type="module">
     import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-    const supabase = createClient(
-      'https://hnymghztclawsjcmodvq.supabase.co',
-      'sb_publishable_n0klvUjn0JdKqzLkEruh-Q_FuiFVzSe'
-    );
+    const SUPABASE_URL = 'https://hnymghztclawsjcmodvq.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_n0klvUjn0JdKqzLkEruh-Q_FuiFVzSe';
+    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    const form = document.getElementById('postForm');
-    const statusEl = document.getElementById('status');
-    const publishBtn = document.getElementById('publishBtn');
+    const ADMIN_USER = 'admin';
+    const ADMIN_PASS = 'rainier';
+    const AUTH_KEY = 'araullo_boys_admin_ok';
 
-    form.addEventListener('submit', async function (e) {
+    const loginPanel = document.getElementById('loginPanel');
+    const postPanel = document.getElementById('postPanel');
+    const loginStatus = document.getElementById('loginStatus');
+    const postStatus = document.getElementById('postStatus');
+
+    function showStatus(el, msg, isOk) {
+      el.textContent = msg;
+      el.className = 'status ' + (isOk ? 'ok' : 'err');
+    }
+
+    function syncAuthUI() {
+      const unlocked = sessionStorage.getItem(AUTH_KEY) === '1';
+      loginPanel.classList.toggle('hidden', unlocked);
+      postPanel.classList.toggle('hidden', !unlocked);
+    }
+
+    syncAuthUI();
+
+    document.getElementById('loginForm').addEventListener('submit', (e) => {
       e.preventDefault();
-      publishBtn.disabled = true;
-      statusEl.style.color = '#93c5fd';
-      statusEl.textContent = 'Publishing...';
+      loginStatus.className = 'status';
+
+      const user = document.getElementById('username').value.trim();
+      const pass = document.getElementById('password').value;
+
+      if (user === ADMIN_USER && pass === ADMIN_PASS) {
+        sessionStorage.setItem(AUTH_KEY, '1');
+        document.getElementById('loginForm').reset();
+        syncAuthUI();
+      } else {
+        showStatus(loginStatus, 'Invalid username or password.', false);
+      }
+    });
+
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      sessionStorage.removeItem(AUTH_KEY);
+      syncAuthUI();
+    });
+
+    document.getElementById('photo').addEventListener('change', (e) => {
+      const file = e.target.files?.[0];
+      const box = document.getElementById('previewBox');
+      const img = document.getElementById('previewImg');
+      if (file) {
+        img.src = URL.createObjectURL(file);
+        box.style.display = 'block';
+      } else {
+        img.src = '';
+        box.style.display = 'none';
+      }
+    });
+
+    document.getElementById('postForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('submitBtn');
+      btn.disabled = true;
+      btn.textContent = 'Publishing...';
+      postStatus.className = 'status';
 
       try {
+        const subject = document.getElementById('subject').value.trim();
+        const title = document.getElementById('title').value.trim();
+        const answers = document.getElementById('answers').value.trim();
+        const file = document.getElementById('photo').files?.[0];
+
         let photoUrl = '';
-        const file = document.getElementById('photo').files[0];
 
         if (file) {
-          const ext = file.name.split('.').pop() || 'jpg';
-          const path = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-          const { error: upErr } = await supabase.storage
-            .from('assignment-photos')
-            .upload(path, file, { cacheControl: '3600', upsert: false });
-          if (upErr) throw upErr;
+          const ext = (file.name.split('.').pop() || 'jpg').toLowerCase();
+          const filePath = `${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
 
-          const { data } = supabase.storage.from('assignment-photos').getPublicUrl(path);
-          photoUrl = data.publicUrl;
+          const { error: uploadErr } = await supabase.storage
+            .from('assignment-photos')
+            .upload(filePath, file, { cacheControl: '3600', upsert: false });
+
+          if (uploadErr) throw uploadErr;
+
+          const { data: pubData } = supabase.storage
+            .from('assignment-photos')
+            .getPublicUrl(filePath);
+
+          photoUrl = pubData.publicUrl;
         }
 
-        const row = {
-          subject: document.getElementById('subject').value.trim(),
-          title: document.getElementById('title').value.trim(),
-          answers: document.getElementById('answers').value.trim(),
-          photo_url: photoUrl,
-          created_date: new Date().toLocaleDateString(undefined, {
-            month: 'short', day: 'numeric', year: 'numeric'
-          })
-        };
+        const createdDate = new Date().toLocaleDateString('en-US', {
+          month: 'short',
+          day: 'numeric',
+          year: 'numeric',
+        });
 
-        const { error: insErr } = await supabase.from('assignments').insert([row]);
-        if (insErr) throw insErr;
+        const { error: insertErr } = await supabase
+          .from('assignments')
+          .insert([{
+            subject,
+            title,
+            answers,
+            photo_url: photoUrl,
+            created_date: createdDate,
+          }]);
 
-        statusEl.style.color = '#86efac';
-        statusEl.textContent = 'Posted! Redirecting...';
-        setTimeout(() => { location.href = 'assignments.html'; }, 700);
+        if (insertErr) throw insertErr;
+
+        document.getElementById('postForm').reset();
+        document.getElementById('previewBox').style.display = 'none';
+        showStatus(postStatus, 'Assignment published to the board!', true);
       } catch (err) {
-        statusEl.style.color = '#f87171';
-        statusEl.textContent = 'Error: ' + (err.message || err);
-        publishBtn.disabled = false;
+        showStatus(postStatus, err.message || 'Failed to publish assignment.', false);
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Publish to Board';
       }
     });
   </script>
