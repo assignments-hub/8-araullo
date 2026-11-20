@@ -10,514 +10,161 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
   <style>
     :root {
-      --bg: #04070d;
-      --surface: rgba(13, 20, 36, 0.72);
-      --surface-solid: #0d1424;
-      --border: rgba(56, 189, 248, 0.22);
-      --border-bright: rgba(56, 189, 248, 0.65);
-      --cyan: #38bdf8;
-      --violet: #a855f7;
-      --emerald: #34d399;
-      --amber: #fbbf24;
-      --text: #f1f5f9;
-      --muted: #94a3b8;
+      --bg: #04070d; --surface: rgba(13, 20, 36, 0.72); --surface-solid: #0d1424;
+      --border: rgba(56, 189, 248, 0.22); --border-bright: rgba(56, 189, 248, 0.65);
+      --cyan: #38bdf8; --violet: #a855f7; --emerald: #34d399; --amber: #fbbf24;
+      --text: #f1f5f9; --muted: #94a3b8;
     }
-
     * { box-sizing: border-box; }
-
     body {
-      margin: 0;
-      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
-      background-color: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      padding: 1.75rem 1rem 4.5rem;
-      overflow-x: hidden;
-      position: relative;
+      margin: 0; font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      background-color: var(--bg); color: var(--text); min-height: 100vh;
+      padding: 1.75rem 1rem 4.5rem; overflow-x: hidden; position: relative;
     }
-
     .bg-grid {
-      position: fixed;
-      inset: 0;
-      z-index: -2;
-      background-image:
-        linear-gradient(to right, rgba(56, 189, 248, 0.06) 1px, transparent 1px),
+      position: fixed; inset: 0; z-index: -2;
+      background-image: linear-gradient(to right, rgba(56, 189, 248, 0.06) 1px, transparent 1px),
         linear-gradient(to bottom, rgba(56, 189, 248, 0.06) 1px, transparent 1px);
-      background-size: 42px 42px;
-      mask-image: radial-gradient(ellipse at 50% 20%, #000 45%, transparent 90%);
-      -webkit-mask-image: radial-gradient(ellipse at 50% 20%, #000 45%, transparent 90%);
-      animation: gridDrift 24s linear infinite;
+      background-size: 42px 42px; animation: gridDrift 24s linear infinite;
     }
-
     .bg-glow {
-      position: fixed;
-      inset: 0;
-      z-index: -1;
-      pointer-events: none;
-      background:
-        radial-gradient(circle at 15% 15%, rgba(56, 189, 248, 0.16), transparent 40%),
+      position: fixed; inset: 0; z-index: -1; pointer-events: none;
+      background: radial-gradient(circle at 15% 15%, rgba(56, 189, 248, 0.16), transparent 40%),
         radial-gradient(circle at 85% 25%, rgba(168, 85, 247, 0.14), transparent 42%);
-      animation: pulseGlow 8s ease-in-out infinite alternate;
     }
-
-    @keyframes gridDrift {
-      0% { background-position: 0 0; }
-      100% { background-position: 42px 42px; }
-    }
-
-    @keyframes pulseGlow {
-      0% { opacity: 0.75; transform: scale(1); }
-      100% { opacity: 1; transform: scale(1.04); }
-    }
-
-    .container {
-      max-width: 1020px;
-      margin: 0 auto;
-    }
-
+    @keyframes gridDrift { to { background-position: 42px 42px; } }
+    .container { max-width: 1020px; margin: 0 auto; }
     header {
-      position: relative;
-      background: var(--surface);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 1.35rem 1.5rem;
-      margin-bottom: 1.25rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 1rem;
-      box-shadow: 0 0 30px rgba(56, 189, 248, 0.08);
-      overflow: hidden;
-      animation: fadeDown 0.5s ease-out both;
+      background: var(--surface); backdrop-filter: blur(14px);
+      border: 1px solid var(--border); border-radius: 16px;
+      padding: 1.35rem 1.5rem; margin-bottom: 1.25rem;
+      display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;
     }
-
-    header::after {
-      content: "";
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 60%;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, var(--cyan), var(--violet), transparent);
-      animation: scanLine 4.5s ease-in-out infinite;
-    }
-
-    @keyframes scanLine {
-      0% { left: -60%; }
-      100% { left: 120%; }
-    }
-
-    @keyframes fadeDown {
-      from { opacity: 0; transform: translateY(-14px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .title-wrap {
-      display: flex;
-      flex-direction: column;
-      gap: 0.35rem;
-    }
-
     .eyebrow {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 0.7rem;
-      letter-spacing: 0.16em;
-      text-transform: uppercase;
-      color: var(--cyan);
-      display: flex;
-      align-items: center;
-      gap: 0.45rem;
+      font-family: 'Orbitron', sans-serif; font-size: 0.7rem; letter-spacing: 0.16em;
+      color: var(--cyan); display: flex; align-items: center; gap: 0.45rem;
     }
-
     .live-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--emerald);
-      box-shadow: 0 0 10px var(--emerald);
-      animation: blinkDot 1.8s infinite;
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--emerald); box-shadow: 0 0 10px var(--emerald);
     }
-
-    @keyframes blinkDot {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.35; transform: scale(0.8); }
-    }
-
     h1 {
-      margin: 0;
-      font-family: 'Orbitron', sans-serif;
-      font-size: clamp(1.1rem, 2.7vw, 1.55rem);
-      font-weight: 800;
-      letter-spacing: 0.04em;
-      color: #f8fafc;
-      display: flex;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 0.55rem;
+      margin: 0.25rem 0 0; font-family: 'Orbitron', sans-serif;
+      font-size: clamp(1.1rem, 2.7vw, 1.55rem); font-weight: 800;
+      display: flex; align-items: center; gap: 0.55rem;
     }
-
-    .boys-logo-canvas {
-      height: 2.35rem;
-      width: auto;
-      vertical-align: middle;
-      filter: drop-shadow(0 0 10px rgba(239, 68, 68, 0.45));
-      transform: translateY(1px);
-    }
-
-    .subtitle {
-      color: var(--muted);
-      font-size: 0.85rem;
-      font-weight: 500;
-    }
-
+    .boys-logo-canvas { height: 2.35rem; width: auto; }
+    .subtitle { color: var(--muted); font-size: 0.85rem; margin-top: 0.25rem; }
     .btn-admin {
-      padding: 0.55rem 0.95rem;
-      border-radius: 10px;
-      border: 1px solid var(--border-bright);
-      background: rgba(56, 189, 248, 0.12);
-      color: #bae6fd;
-      text-decoration: none;
-      font-family: 'Orbitron', sans-serif;
-      font-size: 0.74rem;
-      font-weight: 700;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      white-space: nowrap;
-      transition: all 0.2s ease;
+      padding: 0.55rem 0.95rem; border-radius: 10px;
+      border: 1px solid var(--border-bright); background: rgba(56, 189, 248, 0.12);
+      color: #bae6fd; text-decoration: none; font-family: 'Orbitron', sans-serif;
+      font-size: 0.74rem; font-weight: 700; text-transform: uppercase;
     }
-
-    .btn-admin:hover {
-      background: var(--cyan);
-      color: #030712;
-      box-shadow: 0 0 16px rgba(56, 189, 248, 0.5);
-    }
-
-    .announcement-banner {
+    .btn-admin:hover { background: var(--cyan); color: #030712; }
+        .announcement-banner {
       display: none;
       background: linear-gradient(135deg, rgba(251, 191, 36, 0.12), rgba(168, 85, 247, 0.12));
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(251, 191, 36, 0.48);
-      border-radius: 14px;
-      padding: 0.95rem 1.25rem;
-      margin-bottom: 1.35rem;
-      box-shadow: 0 0 24px rgba(251, 191, 36, 0.12);
+      border: 1px solid rgba(251, 191, 36, 0.48); border-radius: 14px;
+      padding: 0.95rem 1.25rem; margin-bottom: 1.35rem;
     }
-
-    .announcement-banner.visible {
-      display: block;
-    }
-
+    .announcement-banner.visible { display: block; }
     .announcement-label {
-      font-family: 'Orbitron', sans-serif;
-      font-size: 0.7rem;
-      font-weight: 800;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--amber);
-      margin-bottom: 0.35rem;
-      display: flex;
-      align-items: center;
-      gap: 0.45rem;
+      font-family: 'Orbitron', sans-serif; font-size: 0.7rem; font-weight: 800;
+      letter-spacing: 0.14em; color: var(--amber); margin-bottom: 0.35rem;
     }
-
-    .announcement-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: var(--amber);
-      box-shadow: 0 0 8px var(--amber);
-      animation: blinkDot 1.4s infinite;
-    }
-
-    .announcement-text {
-      color: #fef3c7;
-      font-size: 0.93rem;
-      line-height: 1.5;
-      white-space: pre-wrap;
-      word-break: break-word;
-    }
-
+    .announcement-text { color: #fef3c7; font-size: 0.93rem; line-height: 1.5; white-space: pre-wrap; }
     .controls {
-      display: grid;
-      grid-template-columns: 1fr 220px;
-      gap: 0.85rem;
-      margin-bottom: 1.75rem;
-      animation: fadeDown 0.6s ease-out both;
+      display: grid; grid-template-columns: 1fr 220px; gap: 0.85rem; margin-bottom: 1.75rem;
     }
-
-    @media (max-width: 620px) {
-      .controls { grid-template-columns: 1fr; }
-    }
-
+    @media (max-width: 620px) { .controls { grid-template-columns: 1fr; } }
     input[type="search"], select {
-      width: 100%;
-      padding: 0.8rem 1rem;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      background: var(--surface);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      color: var(--text);
-      font-family: inherit;
-      font-size: 0.95rem;
-      outline: none;
-      transition: border-color 0.25s, box-shadow 0.25s;
+      width: 100%; padding: 0.8rem 1rem; border-radius: 12px;
+      border: 1px solid var(--border); background: var(--surface);
+      color: var(--text); font-family: inherit; font-size: 0.95rem; outline: none;
     }
-
-    input[type="search"]::placeholder { color: #64748b; }
-
-    input[type="search"]:focus, select:focus {
-      border-color: var(--cyan);
-      box-shadow: 0 0 18px rgba(56, 189, 248, 0.22);
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
-      gap: 1.35rem;
-    }
-
+    input[type="search"]:focus, select:focus { border-color: var(--cyan); }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 1.35rem; }
     .card {
-      position: relative;
-      background: var(--surface);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1),
-                  border-color 0.28s ease,
-                  box-shadow 0.28s ease;
-      animation: cardIn 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+      background: var(--surface); backdrop-filter: blur(14px);
+      border: 1px solid var(--border); border-radius: 16px;
+      overflow: hidden; display: flex; flex-direction: column;
     }
-
-    @keyframes cardIn {
-      from { opacity: 0; transform: translateY(14px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .card:hover {
-      transform: translateY(-5px);
-      border-color: var(--border-bright);
-      box-shadow: 0 12px 32px rgba(2, 6, 23, 0.7), 0 0 22px rgba(56, 189, 248, 0.16);
-    }
-
+    .card:hover { border-color: var(--border-bright); }
     .card-img-wrap {
-      position: relative;
-      background: #03050a;
-      height: 215px;
-      overflow: hidden;
-      cursor: zoom-in;
-      border-bottom: 1px solid var(--border);
+      position: relative; background: #03050a; height: 215px;
+      overflow: hidden; cursor: zoom-in; border-bottom: 1px solid var(--border);
     }
-
-    .card-img-wrap img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
-    }
-
-    .card-img-wrap:hover img {
-      transform: scale(1.06);
-    }
-
+    .card-img-wrap img { width: 100%; height: 100%; object-fit: cover; }
     .zoom-hint {
-      position: absolute;
-      bottom: 10px;
-      right: 10px;
-      background: rgba(4, 7, 13, 0.8);
-      border: 1px solid var(--border-bright);
-      color: var(--cyan);
-      font-size: 0.72rem;
-      font-weight: 700;
-      padding: 0.25rem 0.6rem;
-      border-radius: 999px;
-      letter-spacing: 0.04em;
-      pointer-events: none;
+      position: absolute; bottom: 10px; right: 10px; background: rgba(4, 7, 13, 0.8);
+      border: 1px solid var(--border-bright); color: var(--cyan);
+      font-size: 0.72rem; font-weight: 700; padding: 0.25rem 0.6rem; border-radius: 999px;
     }
-
-    .card-body {
-      padding: 1.15rem;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .card-meta {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 0.5rem;
-      margin-bottom: 0.65rem;
-    }
-
+    .card-body { padding: 1.15rem; flex: 1; display: flex; flex-direction: column; }
+    .card-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.65rem; }
     .badge {
-      background: linear-gradient(135deg, rgba(56, 189, 248, 0.18), rgba(168, 85, 247, 0.18));
-      border: 1px solid rgba(56, 189, 248, 0.35);
-      color: #7dd3fc;
-      padding: 0.24rem 0.68rem;
-      border-radius: 999px;
-      font-size: 0.73rem;
-      font-weight: 700;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
+      background: rgba(56, 189, 248, 0.18); border: 1px solid rgba(56, 189, 248, 0.35);
+      color: #7dd3fc; padding: 0.24rem 0.68rem; border-radius: 999px;
+      font-size: 0.73rem; font-weight: 700; text-transform: uppercase;
     }
-
-    .date {
-      color: var(--muted);
-      font-size: 0.78rem;
-      font-variant-numeric: tabular-nums;
-    }
-
-    .card-title {
-      margin: 0 0 0.8rem;
-      font-size: 1.12rem;
-      font-weight: 700;
-      color: #f8fafc;
-      line-height: 1.35;
-    }
-
+    .date { color: var(--muted); font-size: 0.78rem; }
+    .card-title { margin: 0 0 0.8rem; font-size: 1.12rem; font-weight: 700; color: #f8fafc; }
     .answer-content {
-      background: rgba(4, 7, 13, 0.75);
-      border: 1px solid rgba(148, 163, 184, 0.16);
-      border-radius: 10px;
-      padding: 0.85rem;
-      font-size: 0.9rem;
-      line-height: 1.55;
-      color: #e2e8f0;
-      white-space: pre-wrap;
-      word-break: break-word;
-      flex: 1;
-      max-height: 240px;
-      overflow-y: auto;
+      background: rgba(4, 7, 13, 0.75); border: 1px solid rgba(148, 163, 184, 0.16);
+      border-radius: 10px; padding: 0.85rem; font-size: 0.9rem; line-height: 1.55;
+      color: #e2e8f0; white-space: pre-wrap; word-break: break-word; flex: 1;
+      max-height: 240px; overflow-y: auto;
     }
-
-    .answer-content::-webkit-scrollbar { width: 6px; }
-    .answer-content::-webkit-scrollbar-thumb {
-      background: rgba(56, 189, 248, 0.3);
-      border-radius: 999px;
-    }
-
     .card-footer {
-      margin-top: 0.95rem;
-      padding-top: 0.8rem;
-      border-top: 1px solid rgba(56, 189, 248, 0.14);
-      display: flex;
-      justify-content: flex-end;
+      margin-top: 0.95rem; padding-top: 0.8rem;
+      border-top: 1px solid rgba(56, 189, 248, 0.14); display: flex; justify-content: flex-end;
     }
-
     .btn-copy {
-      padding: 0.45rem 0.85rem;
-      border-radius: 8px;
-      border: 1px solid var(--border-bright);
-      background: rgba(56, 189, 248, 0.1);
-      color: #bae6fd;
-      font-family: inherit;
-      font-weight: 700;
-      font-size: 0.8rem;
-      letter-spacing: 0.03em;
-      cursor: pointer;
-      transition: all 0.2s ease;
+      padding: 0.45rem 0.85rem; border-radius: 8px; border: 1px solid var(--border-bright);
+      background: rgba(56, 189, 248, 0.1); color: #bae6fd; font-weight: 700;
+      font-size: 0.8rem; cursor: pointer;
     }
-
-    .btn-copy:hover {
-      background: var(--cyan);
-      color: #030712;
-      box-shadow: 0 0 16px rgba(56, 189, 248, 0.5);
-    }
-
-    .btn-copy.copied {
-      background: var(--emerald);
-      border-color: var(--emerald);
-      color: #022c22;
-      box-shadow: 0 0 16px rgba(52, 211, 153, 0.5);
-    }
-
+    .btn-copy:hover { background: var(--cyan); color: #030712; }
+    .btn-copy.copied { background: var(--emerald); border-color: var(--emerald); color: #022c22; }
     .empty {
-      text-align: center;
-      padding: 3.5rem 1rem;
-      background: var(--surface);
-      border: 1px dashed var(--border);
-      border-radius: 16px;
-      color: var(--muted);
+      text-align: center; padding: 3rem 1rem; background: var(--surface);
+      border: 1px dashed var(--border); border-radius: 16px; color: var(--muted);
     }
-
     .modal {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(2, 4, 10, 0.92);
-      backdrop-filter: blur(8px);
-      z-index: 100;
-      align-items: center;
-      justify-content: center;
-      padding: 1rem;
+      display: none; position: fixed; inset: 0; background: rgba(2, 4, 10, 0.92);
+      z-index: 100; align-items: center; justify-content: center; padding: 1rem;
     }
-
     .modal.open { display: flex; }
-
-    .modal img {
-      max-width: 95vw;
-      max-height: 88vh;
-      border-radius: 12px;
-      border: 1px solid var(--border-bright);
-      box-shadow: 0 0 40px rgba(56, 189, 248, 0.25);
-    }
-
+    .modal img { max-width: 95vw; max-height: 88vh; border-radius: 12px; }
     .modal-close {
-      position: fixed;
-      top: 1rem;
-      right: 1.25rem;
-      background: var(--surface-solid);
-      color: var(--cyan);
-      border: 1px solid var(--border-bright);
-      border-radius: 10px;
-      padding: 0.55rem 0.95rem;
-      font-weight: 700;
-      cursor: pointer;
-      transition: 0.2s;
-    }
-
-    .modal-close:hover {
-      background: var(--cyan);
-      color: #030712;
+      position: fixed; top: 1rem; right: 1.25rem; background: var(--surface-solid);
+      color: var(--cyan); border: 1px solid var(--border-bright); border-radius: 10px;
+      padding: 0.55rem 0.95rem; font-weight: 700; cursor: pointer;
     }
   </style>
 </head>
 <body>
   <div class="bg-grid"></div>
   <div class="bg-glow"></div>
-
   <div class="container">
     <header>
-      <div class="title-wrap">
+      <div>
         <div class="eyebrow"><span class="live-dot"></span> 8-ARAULLO // DATABASE ONLINE</div>
-        <h1>
-          CLASS ASSIGNMENT FOR
-          <canvas id="boysLogo" class="boys-logo-canvas" aria-label="THE BOYS"></canvas>
-        </h1>
+        <h1>CLASS ASSIGNMENT FOR <canvas id="boysLogo" class="boys-logo-canvas" aria-label="THE BOYS"></canvas></h1>
         <div class="subtitle" id="countText">Syncing records...</div>
       </div>
       <a href="add-assignment.html" class="btn-admin">Admin Page</a>
     </header>
 
     <div class="announcement-banner" id="announcementBanner">
-      <div class="announcement-label"><span class="announcement-dot"></span> ANNOUNCEMENT // BROADCAST</div>
+      <div class="announcement-label">ANNOUNCEMENT // BROADCAST</div>
       <div class="announcement-text" id="announcementText"></div>
     </div>
 
     <div class="controls">
       <input type="search" id="searchInput" placeholder="Search title or answers..." />
-      <select id="subjectFilter">
-        <option value="ALL">All Subjects</option>
-      </select>
+      <select id="subjectFilter"><option value="ALL">All Subjects</option></select>
     </div>
 
     <div id="board"></div>
@@ -534,92 +181,110 @@
       img.src = 'boys-logo.jpg';
       img.onload = function () {
         const temp = document.createElement('canvas');
-        temp.width = img.naturalWidth;
-        temp.height = img.naturalHeight;
+        temp.width = img.naturalWidth; temp.height = img.naturalHeight;
         const tctx = temp.getContext('2d');
         tctx.drawImage(img, 0, 0);
-
         const imgData = tctx.getImageData(0, 0, temp.width, temp.height);
         const d = imgData.data;
         let minX = temp.width, minY = temp.height, maxX = 0, maxY = 0;
-
         for (let y = 0; y < temp.height; y++) {
           for (let x = 0; x < temp.width; x++) {
             const i = (y * temp.width + x) * 4;
-            const r = d[i], g = d[i + 1], b = d[i + 2];
-            const whiteness = Math.min(r, g, b);
-            if (whiteness > 210) {
-              d[i + 3] = 0;
-            } else if (whiteness > 140) {
-              d[i + 3] = Math.round(((210 - whiteness) / 70) * 255);
-            }
+            const w = Math.min(d[i], d[i + 1], d[i + 2]);
+            if (w > 210) d[i + 3] = 0;
+            else if (w > 140) d[i + 3] = Math.round(((210 - w) / 70) * 255);
             if (d[i + 3] > 10) {
-              if (x < minX) minX = x;
-              if (x > maxX) maxX = x;
-              if (y < minY) minY = y;
-              if (y > maxY) maxY = y;
+              if (x < minX) minX = x; if (x > maxX) maxX = x;
+              if (y < minY) minY = y; if (y > maxY) maxY = y;
             }
           }
         }
         tctx.putImageData(imgData, 0, 0);
-
         const out = document.getElementById('boysLogo');
         if (maxX >= minX && maxY >= minY) {
-          const pad = 4;
-          const cw = maxX - minX + 1 + pad * 2;
-          const ch = maxY - minY + 1 + pad * 2;
-          out.width = cw;
-          out.height = ch;
-          out.getContext('2d').drawImage(
-            temp,
-            minX,
-            minY,
-            maxX - minX + 1,
-            maxY - minY + 1,
-            pad,
-            pad,
-            maxX - minX + 1,
-            maxY - minY + 1
-          );
+          const pad = 4, sw = maxX - minX + 1, sh = maxY - minY + 1;
+          out.width = sw + pad * 2; out.height = sh + pad * 2;
+          out.getContext('2d').drawImage(temp, minX, minY, sw, sh, pad, pad, sw, sh);
         }
       };
     })();
   </script>
-
-  <script>
-    (async function () {
+    <script>
+    (function () {
       const SUPABASE_URL = 'https://hnymghztclawsjcmodvq.supabase.co';
       const SUPABASE_ANON_KEY = 'sb_publishable_n0klvUjn0JdKqzLkEruh-Q_FuiFVzSe';
-
       const countEl = document.getElementById('countText');
       const boardEl = document.getElementById('board');
       let allItems = [];
 
-      function escapeHtml(str) {
-        const div = document.createElement('div');
-        div.textContent = str || '';
-        return div.innerHTML;
+      function esc(s) {
+        const d = document.createElement('div');
+        d.textContent = s || '';
+        return d.innerHTML;
       }
 
       if (!window.supabase || typeof window.supabase.createClient !== 'function') {
-        countEl.textContent = 'Client load error';
-        boardEl.innerHTML = `<div class="empty"><p>Failed to load Supabase client library. Check internet/adblock and refresh.</p></div>`;
+        countEl.textContent = 'Client error';
+        boardEl.innerHTML = '<div class="empty"><p>Supabase library failed to load.</p></div>';
         return;
       }
 
       const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-      async function loadAnnouncement() {
-        try {
-          const { data, error } = await db
-            .from('announcements')
-            .select('message')
-            .eq('id', 1)
-            .maybeSingle();
+      function updateSubjects(items) {
+        const sel = document.getElementById('subjectFilter');
+        const cur = sel.value;
+        const subs = [...new Set(items.map(i => i.subject).filter(Boolean))].sort();
+        sel.innerHTML = '<option value="ALL">All Subjects</option>' +
+          subs.map(s => `<option value="${esc(s)}">${esc(s)}</option>`).join('');
+        if (subs.includes(cur)) sel.value = cur;
+      }
 
-          if (error) return;
+      function renderBoard() {
+        const q = document.getElementById('searchInput').value.trim().toLowerCase();
+        const sub = document.getElementById('subjectFilter').value;
+        const list = allItems.filter(it =>
+          (sub === 'ALL' || it.subject === sub) &&
+          (!q || (it.title || '').toLowerCase().includes(q) || (it.answers || '').toLowerCase().includes(q))
+        );
+        countEl.textContent = `Showing ${list.length} of ${allItems.length} assignment${allItems.length === 1 ? '' : 's'}`;
+        if (!list.length) {
+          boardEl.innerHTML = '<div class="empty"><p>No assignments found.</p></div>';
+          return;
+        }
+        boardEl.innerHTML = '<div class="grid">' + list.map(it => `
+          <article class="card">
+            ${it.photo_url ? `<div class="card-img-wrap" data-zoom="${esc(it.photo_url)}"><img src="${esc(it.photo_url)}" alt="${esc(it.title)}" loading="lazy" /><span class="zoom-hint">TAP TO ZOOM</span></div>` : ''}
+            <div class="card-body">
+              <div class="card-meta"><span class="badge">${esc(it.subject)}</span><span class="date">${esc(it.created_date || '')}</span></div>
+              <h2 class="card-title">${esc(it.title)}</h2>
+              <div class="answer-content">${esc(it.answers)}</div>
+              <div class="card-footer"><button class="btn-copy" data-copy="${it.id}">Copy Answers</button></div>
+            </div>
+          </article>`).join('') + '</div>';
 
-          const msg = (data?.message || '').trim();
+        boardEl.querySelectorAll('[data-zoom]').forEach(el => {
+          el.onclick = () => {
+            document.getElementById('modalImg').src = el.getAttribute('data-zoom');
+            document.getElementById('imgModal').classList.add('open');
+          };
+        });
+        boardEl.querySelectorAll('[data-copy]').forEach(btn => {
+          btn.onclick = () => {
+            const found = allItems.find(x => String(x.id) === btn.getAttribute('data-copy'));
+            if (found) {
+              navigator.clipboard.writeText(found.answers).then(() => {
+                btn.textContent = 'Copied ✓'; btn.classList.add('copied');
+                setTimeout(() => { btn.textContent = 'Copy Answers'; btn.classList.remove('copied'); }, 1500);
+              });
+            }
+          };
+        });
+      }
+
+      db.from('announcements').select('message').eq('id', 1).maybeSingle()
+        .then(({ data }) => {
+          const msg = (data && data.message ? data.message : '').trim();
           const banner = document.getElementById('announcementBanner');
           if (msg) {
             document.getElementById('announcementText').textContent = msg;
@@ -627,66 +292,26 @@
           } else {
             banner.classList.remove('visible');
           }
-        } catch (_) {}
-      }
+        })
+        .catch(() => {});
 
-      function updateSubjectDropdown(items) {
-        const select = document.getElementById('subjectFilter');
-        const current = select.value;
-        const subjects = [...new Set(items.map(i => i.subject).filter(Boolean))].sort();
-        select.innerHTML = '<option value="ALL">All Subjects</option>' +
-          subjects.map(s => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join('');
-        if (subjects.includes(current)) select.value = current;
-      }
-
-      function renderBoard() {
-        const query = document.getElementById('searchInput').value.trim().toLowerCase();
-        const subject = document.getElementById('subjectFilter').value;
-
-        const filtered = allItems.filter(item => {
-          const matchSubj = subject === 'ALL' || item.subject === subject;
-          const matchText = !query ||
-            (item.title || '').toLowerCase().includes(query) ||
-            (item.answers || '').toLowerCase().includes(query);
-          return matchSubj && matchText;
+      db.from('assignments').select('*').order('id', { ascending: false })
+        .then(({ data, error }) => {
+          if (error) throw error;
+          allItems = data || [];
+          updateSubjects(allItems);
+          renderBoard();
+        })
+        .catch(err => {
+          countEl.textContent = 'Sync failed';
+          boardEl.innerHTML = `<div class="empty"><p>${esc(err.message || 'Failed to load')}</p></div>`;
         });
 
-        countEl.textContent =
-          `Showing ${filtered.length} of ${allItems.length} assignment${allItems.length === 1 ? '' : 's'}`;
-
-        if (!filtered.length) {
-          boardEl.innerHTML = `<div class="empty"><p>No matching assignments found in database.</p></div>`;
-          return;
-        }
-
-        boardEl.innerHTML = `<div class="grid">${filtered.map((item, idx) => `
-          <article class="card" style="animation-delay: ${Math.min(idx * 55, 450)}ms">
-            ${item.photo_url ? `
-              <div class="card-img-wrap" data-zoom="${escapeHtml(item.photo_url)}">
-                <img src="${escapeHtml(item.photo_url)}" alt="${escapeHtml(item.title)}" loading="lazy" />
-                <span class="zoom-hint">TAP TO ZOOM</span>
-              </div>` : ''}
-            <div class="card-body">
-              <div class="card-meta">
-                <span class="badge">${escapeHtml(item.subject)}</span>
-                <span class="date">${escapeHtml(item.created_date || '')}</span>
-              </div>
-              <h2 class="card-title">${escapeHtml(item.title)}</h2>
-              <div class="answer-content">${escapeHtml(item.answers)}</div>
-              <div class="card-footer">
-                <button class="btn-copy" data-copy="${item.id}">Copy Answers</button>
-              </div>
-            </div>
-          </article>
-        `).join('')}</div>`;
-
-        boardEl.querySelectorAll('[data-zoom]').forEach(el => {
-          el.addEventListener('click', () => {
-            document.getElementById('modalImg').src = el.getAttribute('data-zoom');
-            document.getElementById('imgModal').classList.add('open');
-          });
-        });
-
-        boardEl.querySelectorAll('[data-copy]').forEach(btn => {
-          btn.addEventListener('click', () => {
-            const found = allItems.find(x => S
+      document.getElementById('closeModal').onclick = () => document.getElementById('imgModal').classList.remove('open');
+      document.getElementById('imgModal').onclick = e => { if (e.target.id === 'imgModal') e.currentTarget.classList.remove('open'); };
+      document.getElementById('searchInput').addEventListener('input', renderBoard);
+      document.getElementById('subjectFilter').addEventListener('change', renderBoard);
+    })();
+  </script>
+</body>
+</html>
