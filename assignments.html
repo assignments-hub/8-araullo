@@ -17,6 +17,7 @@
       --cyan: #38bdf8;
       --violet: #a855f7;
       --emerald: #34d399;
+      --amber: #fbbf24;
       --text: #f1f5f9;
       --muted: #94a3b8;
     }
@@ -83,7 +84,7 @@
       border: 1px solid var(--border);
       border-radius: 16px;
       padding: 1.35rem 1.5rem;
-      margin-bottom: 1.5rem;
+      margin-bottom: 1.25rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -193,6 +194,54 @@
       background: var(--cyan);
       color: #030712;
       box-shadow: 0 0 16px rgba(56, 189, 248, 0.5);
+    }
+
+    /* Live Announcement Banner */
+    .announcement-banner {
+      display: none;
+      background: linear-gradient(135deg, rgba(251, 191, 36, 0.12), rgba(168, 85, 247, 0.12));
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(251, 191, 36, 0.48);
+      border-radius: 14px;
+      padding: 0.95rem 1.25rem;
+      margin-bottom: 1.35rem;
+      box-shadow: 0 0 24px rgba(251, 191, 36, 0.12);
+      animation: fadeDown 0.55s ease-out both;
+    }
+
+    .announcement-banner.visible {
+      display: block;
+    }
+
+    .announcement-label {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 0.7rem;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 0.35rem;
+      display: flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+
+    .announcement-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--amber);
+      box-shadow: 0 0 8px var(--amber);
+      animation: blinkDot 1.4s infinite;
+    }
+
+    .announcement-text {
+      color: #fef3c7;
+      font-size: 0.93rem;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-break: break-word;
     }
 
     /* Search & Filter Bar */
@@ -472,6 +521,11 @@
       <a href="add-assignment.html" class="btn-admin">Admin Page</a>
     </header>
 
+    <div class="announcement-banner" id="announcementBanner">
+      <div class="announcement-label"><span class="announcement-dot"></span> ANNOUNCEMENT // BROADCAST</div>
+      <div class="announcement-text" id="announcementText"></div>
+    </div>
+
     <div class="controls">
       <input type="search" id="searchInput" placeholder="Search title or answers..." />
       <select id="subjectFilter">
@@ -560,6 +614,23 @@
       return div.innerHTML;
     }
 
+    async function loadAnnouncement() {
+      const { data } = await supabase
+        .from('announcements')
+        .select('message')
+        .eq('id', 1)
+        .maybeSingle();
+
+      const msg = (data?.message || '').trim();
+      const banner = document.getElementById('announcementBanner');
+      if (msg) {
+        document.getElementById('announcementText').textContent = msg;
+        banner.classList.add('visible');
+      } else {
+        banner.classList.remove('visible');
+      }
+    }
+
     function updateSubjectDropdown(items) {
       const select = document.getElementById('subjectFilter');
       const current = select.value;
@@ -624,44 +695,4 @@
           if (found) {
             navigator.clipboard.writeText(found.answers).then(() => {
               btn.textContent = 'Copied ✓';
-              btn.classList.add('copied');
-              setTimeout(() => {
-                btn.textContent = 'Copy Answers';
-                btn.classList.remove('copied');
-              }, 1600);
-            });
-          }
-        });
-      });
-    }
-
-    async function loadAssignments() {
-      const { data, error } = await supabase
-        .from('assignments')
-        .select('*')
-        .order('id', { ascending: false });
-
-      if (error) {
-        document.getElementById('board').innerHTML =
-          `<div class="empty">Connection error: ${escapeHtml(error.message)}</div>`;
-        return;
-      }
-
-      allItems = data || [];
-      updateSubjectDropdown(allItems);
-      renderBoard();
-    }
-
-    document.getElementById('closeModal').onclick = () => {
-      document.getElementById('imgModal').classList.remove('open');
-    };
-    document.getElementById('imgModal').onclick = (e) => {
-      if (e.target.id === 'imgModal') e.currentTarget.classList.remove('open');
-    };
-    document.getElementById('searchInput').addEventListener('input', renderBoard);
-    document.getElementById('subjectFilter').addEventListener('change', renderBoard);
-
-    loadAssignments();
-  </script>
-</body>
-</html>
+              btn.classList.add('copied')
